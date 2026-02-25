@@ -35,7 +35,7 @@ const projects: Project[] = [
     ],
     link: "#",
     linkText: "Proprietary",
-    image: "/gitea-runner-autoscaling.svg",
+    image: "/gitea-runner-autoscaling.png",
   },
   {
     title: "Genetic Algorithm Scheduler",
@@ -76,9 +76,8 @@ const projects: Project[] = [
             <h3>
               {project.title === "AUR Maintainer" ? (
                 <span>
-                  <span class="tooltip" data-tip="Arch, BTW">
-                    AUR
-                  </span>{" "}
+                  {/* prettier-ignore */}
+                  <span class="tooltip" data-tip="Arch, BTW">AUR</span>{" "}
                   Maintainer
                 </span>
               ) : (
@@ -124,7 +123,7 @@ const projects: Project[] = [
                 <span class="tag">{t}</span>
               ))}
             </div>
-            {project.image ? (
+            {project.image && (
               <div class="chevron-slot">
                 <button
                   class="toggle-image-btn"
@@ -146,8 +145,6 @@ const projects: Project[] = [
                   </svg>
                 </button>
               </div>
-            ) : (
-              <div class="chevron-slot" />
             )}
           </div>
           {project.image && (
@@ -316,8 +313,8 @@ const projects: Project[] = [
 
   /* Footer & Chevron Button */
   .card-footer {
-    display: grid;
-    grid-template-columns: 7fr 1fr;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
     margin-top: auto;
     padding-top: 1rem;
@@ -479,6 +476,18 @@ const projects: Project[] = [
 </style>
 <script>
   {
+    // Eagerly preload all architecture images into the browser cache so that
+    // chevron expansion and modal open never trigger a fresh network request.
+    document
+      .querySelectorAll<HTMLImageElement>(".expandable-image")
+      .forEach((img) => {
+        const url = img.dataset.src ?? img.getAttribute("src") ?? "";
+        if (url && !img.complete) {
+          const preload = new Image();
+          preload.src = url;
+        }
+      });
+
     const buttons = document.querySelectorAll(".toggle-image-btn");
 
     buttons.forEach((button) => {
@@ -587,18 +596,20 @@ const projects: Project[] = [
     function openModal(src: string, alt: string) {
       if (!modal || !modalImg || !modalCaption) return;
       resetZoom();
-      modalImg.src = src;
       modalImg.alt = alt;
       modalCaption.textContent = `Architecture: ${alt}`;
       modal.classList.add("open");
       document.body.style.overflow = "hidden";
 
-      // Measure once after paint so offsetWidth/Height are accurate
-      if (modalImg.complete) {
-        requestAnimationFrame(updateDimensions);
-      } else {
-        modalImg.onload = () => requestAnimationFrame(updateDimensions);
-      }
+      // Force Chrome to decode at full resolution rather than reusing the
+      // downscaled texture it cached from the small inline card preview.
+      // decode() returns a promise that resolves once the image is fully
+      // decoded at the size it will actually be rendered.
+      modalImg.src = src;
+      modalImg
+        .decode()
+        .then(() => requestAnimationFrame(updateDimensions))
+        .catch(() => requestAnimationFrame(updateDimensions));
     }
 
     function closeModal() {
