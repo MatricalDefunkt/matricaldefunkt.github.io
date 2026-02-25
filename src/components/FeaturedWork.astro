@@ -429,6 +429,14 @@ const projects: Project[] = [
     touch-action: none;
     user-select: none;
     -webkit-user-drag: none;
+    cursor: zoom-in; /* Default state */
+  }
+
+  .modal-content img.zoomed {
+    cursor: grab;
+  }
+  .modal-content img.dragging {
+    cursor: grabbing;
   }
 
   #modal-caption {
@@ -469,9 +477,8 @@ const projects: Project[] = [
     cursor: zoom-in;
   }
 </style>
-
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
+  {
     const buttons = document.querySelectorAll(".toggle-image-btn");
 
     buttons.forEach((button) => {
@@ -513,32 +520,69 @@ const projects: Project[] = [
     const MIN_SCALE = 1;
     const MAX_SCALE = 8;
 
-    function clampOrigin() {
+    // Cached dimensions — updated once on resize/open to prevent DOM Reflow thrashing
+    let imgBaseWidth = 0;
+    let imgBaseHeight = 0;
+    let winWidth = 0;
+    let winHeight = 0;
+    let rafPending = false;
+
+    function updateDimensions() {
       if (!modalImg) return;
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
-      const iw = modalImg.offsetWidth * scale;
-      const ih = modalImg.offsetHeight * scale;
-      // Allow pan only within the overflow region so image always fills its side of viewport
-      const maxX = Math.max(0, (iw - vw) / 2);
-      const maxY = Math.max(0, (ih - vh) / 2);
+      imgBaseWidth = modalImg.offsetWidth;
+      imgBaseHeight = modalImg.offsetHeight;
+      winWidth = window.innerWidth;
+      winHeight = window.innerHeight;
+    }
+
+    function clampOrigin() {
+      const iw = imgBaseWidth * scale;
+      const ih = imgBaseHeight * scale;
+      const maxX = Math.max(0, (iw - winWidth) / 2);
+      const maxY = Math.max(0, (ih - winHeight) / 2);
       originX = Math.max(-maxX, Math.min(maxX, originX));
       originY = Math.max(-maxY, Math.min(maxY, originY));
+    }
+
+    function updateCursorClass() {
+      if (!modalImg) return;
+      if (isDragging) {
+        modalImg.classList.add("dragging");
+        modalImg.classList.remove("zoomed");
+      } else if (scale > 1) {
+        modalImg.classList.add("zoomed");
+        modalImg.classList.remove("dragging");
+      } else {
+        modalImg.classList.remove("zoomed", "dragging");
+      }
     }
 
     function applyTransform() {
       if (!modalImg) return;
       clampOrigin();
-      modalImg.style.transform = `translate(${originX}px, ${originY}px) scale(${scale})`;
-      modalImg.style.cursor = scale > 1 ? "grab" : "zoom-in";
+      // Use translate3d to enforce hardware GPU acceleration
+      modalImg.style.transform = `translate3d(${originX}px, ${originY}px, 0) scale(${scale})`;
+    }
+
+    // Schedule a single rAF-batched paint — drops redundant mid-frame calls
+    function scheduleTransform() {
+      if (rafPending) return;
+      rafPending = true;
+      requestAnimationFrame(() => {
+        rafPending = false;
+        applyTransform();
+      });
     }
 
     function resetZoom() {
       scale = 1;
       originX = 0;
       originY = 0;
+      updateCursorClass();
       applyTransform();
     }
+
+    window.addEventListener("resize", updateDimensions, { passive: true });
 
     function openModal(src: string, alt: string) {
       if (!modal || !modalImg || !modalCaption) return;
@@ -548,6 +592,13 @@ const projects: Project[] = [
       modalCaption.textContent = `Architecture: ${alt}`;
       modal.classList.add("open");
       document.body.style.overflow = "hidden";
+
+      // Measure once after paint so offsetWidth/Height are accurate
+      if (modalImg.complete) {
+        requestAnimationFrame(updateDimensions);
+      } else {
+        modalImg.onload = () => requestAnimationFrame(updateDimensions);
+      }
     }
 
     function closeModal() {
@@ -584,14 +635,28 @@ const projects: Project[] = [
       "wheel",
       (e) => {
         e.preventDefault();
-        const factor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
-        const next = Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale * factor));
+
+        // Normalize scroll delta between trackpads and discrete mouse wheels
+        let dy = e.deltaY;
+        if (e.deltaMode === 1)
+          dy *= 33; // DOM_DELTA_LINE
+        else if (e.deltaMode === 2) dy *= winHeight; // DOM_DELTA_PAGE
+
+        // Smooth scaling factor utilizing an exponential curve (prevents instant trackpad blowups)
+        const zoomFactor = Math.exp(-dy * 0.0015);
+        const next = Math.min(
+          MAX_SCALE,
+          Math.max(MIN_SCALE, scale * zoomFactor),
+        );
+
         if (next === MIN_SCALE) {
           originX = 0;
           originY = 0;
         }
+
         scale = next;
-        applyTransform();
+        updateCursorClass();
+        scheduleTransform();
       },
       { passive: false },
     );
@@ -604,7 +669,7 @@ const projects: Project[] = [
       if (scale <= 1) return;
       isDragging = true;
       dragStart = { x: e.clientX - originX, y: e.clientY - originY };
-      if (modalImg) modalImg.style.cursor = "grabbing";
+      updateCursorClass();
       e.preventDefault();
     });
 
@@ -612,16 +677,15 @@ const projects: Project[] = [
       if (!isDragging || !modalImg) return;
       originX = e.clientX - dragStart.x;
       originY = e.clientY - dragStart.y;
-      applyTransform();
+      scheduleTransform(); // Batched to prevent main-thread locking
     });
 
     window.addEventListener("mouseup", () => {
       if (!isDragging) return;
       isDragging = false;
-      if (modalImg) modalImg.style.cursor = scale > 1 ? "grab" : "zoom-in";
+      updateCursorClass();
     });
 
-    // Double-click to reset zoom
     modalImg?.addEventListener("dblclick", (e) => {
       e.stopPropagation();
       resetZoom();
@@ -664,16 +728,17 @@ const projects: Project[] = [
             originX = 0;
             originY = 0;
           }
-          applyTransform();
+          updateCursorClass();
+          scheduleTransform();
         } else if (e.touches.length === 1 && scale > 1) {
           originX += e.touches[0].clientX - lastTouchX;
           originY += e.touches[0].clientY - lastTouchY;
           lastTouchX = e.touches[0].clientX;
           lastTouchY = e.touches[0].clientY;
-          applyTransform();
+          scheduleTransform(); // Batched here as well
         }
       },
       { passive: false },
     );
-  });
+  }
 </script>
