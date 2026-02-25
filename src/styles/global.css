@@ -1,0 +1,221 @@
+:root {
+  --bg-color: #111110;
+  --text-color: #e6e4e0;
+  --accent-color: #a8a49c;
+  --secondary-text: #7a7672;
+  --card-bg: #1b1a18;
+  --card-border: #2c2b27;
+}
+
+body {
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+main {
+  max-width: 900px;
+  width: 100%;
+  padding: 4rem 2rem;
+  margin: 0 auto;
+}
+
+/* Typography */
+
+h1,
+h2,
+h3 {
+  color: var(--text-color);
+  margin: 0;
+}
+
+h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  background: linear-gradient(to right, #e8e6e0, #a8a49c);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent; /* Fallback */
+}
+
+h2 {
+  font-size: 1.5rem;
+  margin-top: 3rem;
+  margin-bottom: 2rem;
+  color: var(--text-color);
+  border-bottom: 1px solid var(--card-border);
+  padding-bottom: 0.5rem;
+}
+
+h3 {
+  font-size: 1.2rem;
+  margin: 0 0 0.5rem 0;
+  color: #e6e4e0;
+}
+
+p {
+  color: var(--secondary-text);
+  margin: 0;
+}
+
+a, span.project-link {
+  color: var(--accent-color);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: #d0cdc6;
+  text-decoration: underline;
+}
+
+/* Utilities */
+
+.text-secondary {
+  color: var(--secondary-text);
+}
+
+.text-accent {
+  color: var(--accent-color);
+}
+
+/* Components: Grid */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Components: Card */
+
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  transition: transform 0.2s, border-color 0.2s;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-bottom: 1.5rem;
+  box-sizing: border-box;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-color);
+}
+
+.card-body {
+  flex-grow: 1;
+}
+
+.card-footer {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Components: Tag */
+
+.tag {
+  background: rgba(30, 41, 59, 0.5);
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: #b5b2ac;
+  border: 1px solid var(--card-border);
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+.tag:last-child {
+  margin-right: 0;
+}
+
+/* Components: List Items (Experience, Education, Awards) */
+
+.list-item {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.list-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.list-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.list-title {
+  font-weight: 600;
+  color: #e6e4e0;
+  font-size: 1.1rem;
+}
+
+.list-subtitle {
+  color: var(--accent-color);
+  margin-top: 0.25rem;
+  font-size: 0.95rem;
+}
+
+.list-date {
+  font-size: 0.9rem;
+  color: var(--secondary-text);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.list-desc {
+    color: var(--secondary-text);
+    font-size: 0.95rem;
+    margin-top: 0.5rem;
+}
+
+.list-summary {
+  color: var(--secondary-text);
+  font-size: 0.95rem;
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.list-summary li {
+  margin-bottom: 0.25rem;
+}
+
+/* Responsive adjustments */
+
+@media (max-width: 600px) {
+  h1 {
+    font-size: 2.5rem;
+  }
+  
+  .list-header {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+
+  .list-date {
+    text-align: left;
+  }
+}

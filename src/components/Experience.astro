@@ -1,0 +1,90 @@
+---
+interface Job {
+  role: string;
+  company: string;
+  date: string;
+  type?: "Full-time" | "Part-time";
+  summary: string;
+}
+
+const jobs: Job[] = [
+  {
+    role: "Cloud Infrastructure Engineer (Trainee)",
+    company: "Mobigic Technologies",
+    date: "Nov 2025 - Present",
+    summary: `Architecting cloud-native infrastructure on Vultr with IaC (Terraform), provisioning hybrid (Linux & Windows) Kubernetes clusters using RKE2 for enterprise-wide migration from Azure. Creating networks with VPCs, subnets, and security groups to ensure secure and scalable deployments. Administering MSSQL and MySQL servers, optimizing performance and ensuring high availability. Set up VPNs and Bastion for secure and easy intra-VPC access.\n\nBuilding and owning CI/CD infrastructure and pipelines with Gitea Actions and Jenkins to automate Android and web builds on VMs and iOS builds on on-prem Mac hardware using Cloudflare Tunnels to streamline development workflows. Used Docker Scout and Trivy in pipelines, ensuring robust container security. Implemented monitoring and alerting with Prometheus and Grafana.`,
+  },
+  {
+    role: "Software Engineer (Trainee)",
+    company: "Mobigic Technologies",
+    date: "Jul 2025 - Nov 2025",
+    summary:
+      "Built a custom Gitea runner in Go reducing build times by 20%. Architected an Async Monolith resume matcher using FastAPI and LLMs. Developed a JIT graph engine in React/MUI & Go/Postgres to accelerate business processes and reduced reliance on handbooks. Optimized legacy SailsJS apps for a 100% increase in performance.",
+  },
+  {
+    role: "Application Development Intern",
+    company: "Project: Human City",
+    date: "Aug 2024 - Jul 2025",
+    summary:
+      "Led a team of 6 to architect and implement a decentralized social media platform, breaking down client requirements into actionable tasks in an agile environment. Decomposed an Express monolith into 12 event-driven microservices, established AWS CI/CD pipelines that reduced deployment latency by 80%.",
+    type: "Part-time",
+  },
+  {
+    role: "Backend Developer Intern",
+    company: "Entelligentsia LLP",
+    date: "Dec 2023 - Jan 2024",
+    summary:
+      "Built Serverless APIs using AWS Lambda and API Gateway for real-time messaging and data streaming. Ensured security and compliance by implementing IAM roles and policies, and optimized performance with DynamoDB and S3 for scalable data storage.",
+  },
+];
+---
+
+<section>
+  <h2>Experience</h2>
+  <div>
+    {
+      jobs.map((job) => (
+        <div class="list-item">
+          <div class="list-header">
+            <div>
+              <div class="list-title">{job.role}</div>
+              <div class="list-subtitle">{job.company}</div>
+            </div>
+            <div class="list-date-group">
+              {job.type && <span class="list-type">{job.type}</span>}
+              <div class="list-date">{job.date}</div>
+            </div>
+          </div>
+          <p
+            class="list-summary-text"
+            set:html={job.summary.replaceAll("\n", "<br/>")}
+          />
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .list-date-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .list-type {
+    font-size: 0.7rem;
+    color: var(--secondary-text);
+    border: 1px solid var(--card-border);
+    border-radius: 4px;
+    padding: 0.15rem 0.45rem;
+    white-space: nowrap;
+  }
+
+  .list-summary-text {
+    color: var(--secondary-text);
+    font-size: 0.95rem;
+    margin: 0.5rem 0 0 0;
+    line-height: 1.5;
+  }
+</style>

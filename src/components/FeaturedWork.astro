@@ -1,0 +1,679 @@
+---
+interface Project {
+  title: string;
+  challenge: string;
+  solution: string;
+  tech: string[];
+  stats: { value: string; label: string }[];
+  link?: string;
+  linkText?: string;
+  image?: string;
+}
+
+const projects: Project[] = [
+  {
+    title: "Node.js Core Contributor",
+    challenge:
+      "Improving error handling in the experimental SQLite runner was critical for stability.",
+    solution:
+      "Authored and merged C++ patch (PR #61096) to robustly handle edge cases in the native binding layer.",
+    tech: ["C++", "Node.js", "Open Source"],
+    stats: [{ value: "PR #61096", label: "Merged" }],
+    link: "https://github.com/nodejs/node/pull/61096",
+    linkText: "View PR",
+  },
+  {
+    title: "Custom Gitea Runner",
+    challenge:
+      "Default runners were costly and inefficient for our specific workload patterns.",
+    solution:
+      "Reverse-engineered the Gitea protocol to build a scale-to-zero runner in Go, orchestrating pods via KEDA.",
+    tech: ["Go", "KEDA", "Kubernetes"],
+    stats: [
+      { value: "20%", label: "Faster Builds" },
+      { value: "Zero", label: "Idle Cost" },
+    ],
+    link: "#",
+    linkText: "Proprietary",
+    image: "/gitea-runner-autoscaling.svg",
+  },
+  {
+    title: "Genetic Algorithm Scheduler",
+    challenge:
+      "Scheduling 4000+ students with conflicting constraints required a robust, local-first solution.",
+    solution:
+      "Implemented a high-performance scheduling Island Model Genetic Algorithm with TanStack DB for offline-capable, timetable viewing.",
+    tech: ["TypeScript", "Node.js Workers", "TanStack DB"],
+    stats: [
+      { value: "4000+", label: "Students" },
+      { value: "500+", label: "Faculties" },
+      { value: "800+", label: "Constraints" },
+    ],
+    link: "https://github.com/pranav-suri/timetable-manager-v3",
+    linkText: "View Project",
+  },
+  {
+    title: "AUR Maintainer",
+    challenge:
+      "Community packages for essential tools were outdated or missing.",
+    solution:
+      "Active maintenance of PKGBUILD scripts incluhigh-performance schedulingding SELinux policies to ensure stability for Arch users.",
+    tech: ["Linux", "Bash", "Package Management"],
+    stats: [{ value: "Active", label: "Maintainer" }],
+    link: "https://aur.archlinux.org/account/matricaldefunkt",
+    linkText: "View Account",
+  },
+];
+---
+
+<section>
+  <h2>Featured Work & Contributions</h2>
+  <div class="grid">
+    {
+      projects.map((project) => (
+        <div class="card">
+          <div class="card-header">
+            <h3>
+              {project.title === "AUR Maintainer" ? (
+                <span>
+                  <span class="tooltip" data-tip="Arch, BTW">
+                    AUR
+                  </span>{" "}
+                  Maintainer
+                </span>
+              ) : (
+                project.title
+              )}
+            </h3>
+            {(project.link && project.link !== "#" && (
+              <a
+                href={project.link}
+                class="project-link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {project.linkText || "View Code"} &rarr;
+              </a>
+            )) ||
+              (project.link === "#" && (
+                <span class="project-link">
+                  {project.linkText || "Proprietary"}
+                </span>
+              ))}
+          </div>
+          <div class="card-body">
+            <div class="project-section">
+              <strong>The Challenge:</strong> <p>{project.challenge}</p>
+            </div>
+            <div class="project-section">
+              <strong>The Solution:</strong> <p>{project.solution}</p>
+            </div>
+
+            <div class="stats-row">
+              {project.stats.map((stat) => (
+                <div class="stat">
+                  <span class="stat-value">{stat.value}</span>
+                  <span class="stat-label">{stat.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="tags">
+              {project.tech.map((t) => (
+                <span class="tag">{t}</span>
+              ))}
+            </div>
+            {project.image ? (
+              <div class="chevron-slot">
+                <button
+                  class="toggle-image-btn"
+                  aria-label="Show Architecture"
+                  data-tooltip="Show Architecture"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </button>
+              </div>
+            ) : (
+              <div class="chevron-slot" />
+            )}
+          </div>
+          {project.image && (
+            <div class="project-image-wrapper">
+              <div class="project-image">
+                <img
+                  src={project.image}
+                  alt={`Architecture for ${project.title}`}
+                  class="expandable-image"
+                  data-title={project.title}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<div
+  id="image-modal"
+  class="modal-overlay"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Architecture diagram"
+>
+  <button class="modal-close" aria-label="Close modal">&times;</button>
+  <div class="modal-content">
+    <img id="modal-img" src="" alt="" />
+    <p id="modal-caption"></p>
+  </div>
+</div>
+
+<style>
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--card-border);
+  }
+
+  .project-link {
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .project-section {
+    margin-bottom: 0.75rem;
+  }
+
+  .project-section strong {
+    color: var(--text-color);
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .project-section p {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* Image Wrapper & Animation */
+  .project-image-wrapper {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition:
+      grid-template-rows 0.3s ease-out,
+      margin-top 0.3s ease-out;
+    margin-bottom: 0;
+  }
+
+  .project-image-wrapper.expanded {
+    grid-template-rows: 1fr;
+    margin-top: 1rem;
+  }
+
+  .project-image {
+    overflow: hidden;
+    border-radius: 0.5rem;
+    border: 1px solid var(--card-border);
+    opacity: 0;
+    transition: opacity 0.3s ease-in;
+    min-height: 0; /* Important for grid transition */
+  }
+
+  .project-image-wrapper.expanded .project-image {
+    opacity: 1;
+  }
+
+  .project-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+  }
+
+  /* Stats Row */
+  .stats-row {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--card-border);
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stat-value {
+    color: var(--accent-color);
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--secondary-text);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Tooltip (shared for AUR and button) */
+  .tooltip {
+    position: relative;
+    cursor: default;
+    border-bottom: 1px dotted var(--accent-color);
+  }
+
+  .tooltip::after,
+  .toggle-image-btn::after {
+    background: #3a3935;
+    color: var(--text-color);
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    border: 1px solid #52504b;
+    pointer-events: none;
+    opacity: 0;
+    transition:
+      opacity 0.15s ease,
+      transform 0.15s ease;
+    z-index: 100;
+    position: absolute;
+  }
+
+  .tooltip::after {
+    content: attr(data-tip);
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%) scale(0.85);
+  }
+
+  .tooltip:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+
+  /* Footer & Chevron Button */
+  .card-footer {
+    display: grid;
+    grid-template-columns: 7fr 1fr;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 1rem;
+    gap: 0.5rem;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .chevron-slot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .toggle-image-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    color: var(--accent-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+    position: relative;
+    flex-shrink: 0; /* Don't shrink */
+  }
+
+  .toggle-image-btn:hover {
+    color: var(--text-color);
+    border-color: var(--accent-color);
+    background-color: #2c2b27;
+  }
+
+  .toggle-image-btn svg {
+    transition: transform 0.3s ease;
+  }
+
+  .toggle-image-btn.active svg {
+    transform: rotate(180deg);
+  }
+
+  /* Tooltip for Chevron */
+  .toggle-image-btn::after {
+    content: attr(data-tooltip);
+    bottom: 100%;
+    right: 0;
+    transform: translateY(-8px);
+  }
+
+  .toggle-image-btn:hover::after {
+    opacity: 1;
+  }
+
+  /* Modal / Lightbox */
+  .modal-overlay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    padding: 2rem;
+    overflow: hidden;
+  }
+
+  .modal-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .modal-content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    transform: scale(0.92);
+    transition: transform 0.2s ease;
+  }
+
+  .modal-overlay.open .modal-content {
+    transform: scale(1);
+  }
+
+  .modal-content img {
+    width: 90vw;
+    max-height: 85vh;
+    height: auto;
+    object-fit: contain;
+    border-radius: 0.5rem;
+    border: 1px solid var(--card-border);
+    display: block;
+    transform-origin: center center;
+    will-change: transform;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  #modal-caption {
+    color: var(--secondary-text);
+    font-size: 0.85rem;
+    margin: 0;
+  }
+
+  .modal-close {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.5rem;
+    z-index: 1100;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--card-border);
+    color: var(--text-color);
+    font-size: 1.5rem;
+    line-height: 1;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .modal-close:hover {
+    background: var(--card-bg);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+  }
+
+  .expandable-image {
+    cursor: zoom-in;
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const buttons = document.querySelectorAll(".toggle-image-btn");
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const card = button.closest(".card");
+        if (!card) return;
+
+        const imageWrapper = card.querySelector(".project-image-wrapper");
+
+        if (imageWrapper && imageWrapper instanceof HTMLElement) {
+          button.classList.toggle("active");
+          imageWrapper.classList.toggle("expanded");
+
+          if (button.classList.contains("active")) {
+            button.setAttribute("data-tooltip", "Hide Architecture");
+            button.setAttribute("aria-label", "Hide Architecture");
+          } else {
+            button.setAttribute("data-tooltip", "Show Architecture");
+            button.setAttribute("aria-label", "Show Architecture");
+          }
+        }
+      });
+    });
+
+    // Modal lightbox
+    const modal = document.getElementById("image-modal") as HTMLElement | null;
+    const modalImg = document.getElementById(
+      "modal-img",
+    ) as HTMLImageElement | null;
+    const modalCaption = document.getElementById(
+      "modal-caption",
+    ) as HTMLElement | null;
+    const closeBtn = modal?.querySelector(".modal-close") as HTMLElement | null;
+
+    // --- Zoom / pan state ---
+    let scale = 1;
+    let originX = 0;
+    let originY = 0;
+    const MIN_SCALE = 1;
+    const MAX_SCALE = 8;
+
+    function clampOrigin() {
+      if (!modalImg) return;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const iw = modalImg.offsetWidth * scale;
+      const ih = modalImg.offsetHeight * scale;
+      // Allow pan only within the overflow region so image always fills its side of viewport
+      const maxX = Math.max(0, (iw - vw) / 2);
+      const maxY = Math.max(0, (ih - vh) / 2);
+      originX = Math.max(-maxX, Math.min(maxX, originX));
+      originY = Math.max(-maxY, Math.min(maxY, originY));
+    }
+
+    function applyTransform() {
+      if (!modalImg) return;
+      clampOrigin();
+      modalImg.style.transform = `translate(${originX}px, ${originY}px) scale(${scale})`;
+      modalImg.style.cursor = scale > 1 ? "grab" : "zoom-in";
+    }
+
+    function resetZoom() {
+      scale = 1;
+      originX = 0;
+      originY = 0;
+      applyTransform();
+    }
+
+    function openModal(src: string, alt: string) {
+      if (!modal || !modalImg || !modalCaption) return;
+      resetZoom();
+      modalImg.src = src;
+      modalImg.alt = alt;
+      modalCaption.textContent = `Architecture: ${alt}`;
+      modal.classList.add("open");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeModal() {
+      if (!modal || !modalImg) return;
+      modal.classList.remove("open");
+      document.body.style.overflow = "";
+      setTimeout(() => {
+        if (!modal.classList.contains("open")) {
+          modalImg.src = "";
+          resetZoom();
+        }
+      }, 200);
+    }
+
+    document.querySelectorAll(".expandable-image").forEach((img) => {
+      img.addEventListener("click", () => {
+        const el = img as HTMLImageElement;
+        openModal(el.src, el.dataset.title ?? el.alt);
+      });
+    });
+
+    closeBtn?.addEventListener("click", closeModal);
+
+    modal?.addEventListener("click", (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeModal();
+    });
+
+    // --- Scroll (wheel) zoom ---
+    modalImg?.addEventListener(
+      "wheel",
+      (e) => {
+        e.preventDefault();
+        const factor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
+        const next = Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale * factor));
+        if (next === MIN_SCALE) {
+          originX = 0;
+          originY = 0;
+        }
+        scale = next;
+        applyTransform();
+      },
+      { passive: false },
+    );
+
+    // --- Mouse drag to pan ---
+    let isDragging = false;
+    let dragStart = { x: 0, y: 0 };
+
+    modalImg?.addEventListener("mousedown", (e) => {
+      if (scale <= 1) return;
+      isDragging = true;
+      dragStart = { x: e.clientX - originX, y: e.clientY - originY };
+      if (modalImg) modalImg.style.cursor = "grabbing";
+      e.preventDefault();
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (!isDragging || !modalImg) return;
+      originX = e.clientX - dragStart.x;
+      originY = e.clientY - dragStart.y;
+      applyTransform();
+    });
+
+    window.addEventListener("mouseup", () => {
+      if (!isDragging) return;
+      isDragging = false;
+      if (modalImg) modalImg.style.cursor = scale > 1 ? "grab" : "zoom-in";
+    });
+
+    // Double-click to reset zoom
+    modalImg?.addEventListener("dblclick", (e) => {
+      e.stopPropagation();
+      resetZoom();
+    });
+
+    // --- Touch: pinch to zoom + single-finger pan ---
+    let lastPinchDist = 0;
+    let lastTouchX = 0;
+    let lastTouchY = 0;
+
+    modalImg?.addEventListener(
+      "touchstart",
+      (e) => {
+        if (e.touches.length === 2) {
+          lastPinchDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY,
+          );
+        } else if (e.touches.length === 1) {
+          lastTouchX = e.touches[0].clientX;
+          lastTouchY = e.touches[0].clientY;
+        }
+      },
+      { passive: true },
+    );
+
+    modalImg?.addEventListener(
+      "touchmove",
+      (e) => {
+        e.preventDefault();
+        if (e.touches.length === 2) {
+          const dist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY,
+          );
+          const factor = dist / lastPinchDist;
+          scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale * factor));
+          lastPinchDist = dist;
+          if (scale === MIN_SCALE) {
+            originX = 0;
+            originY = 0;
+          }
+          applyTransform();
+        } else if (e.touches.length === 1 && scale > 1) {
+          originX += e.touches[0].clientX - lastTouchX;
+          originY += e.touches[0].clientY - lastTouchY;
+          lastTouchX = e.touches[0].clientX;
+          lastTouchY = e.touches[0].clientY;
+          applyTransform();
+        }
+      },
+      { passive: false },
+    );
+  });
+</script>

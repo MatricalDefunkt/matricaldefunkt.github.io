@@ -1,0 +1,66 @@
+---
+interface Post {
+    title: string;
+    description: string;
+    link: string;
+    date: string;
+}
+
+const posts: Post[] = [
+    {
+        title: "Debugging Experimental Modules in Node.js",
+        description: "A deep dive into how I diagnosed and fixed a C++ binding error in the SQLite runner (PR #61096).",
+        link: "#",
+        date: "Feb 2026"
+    }
+];
+---
+
+<section>
+    <h2>Technical Writing</h2>
+    <div class="grid-writing">
+        {posts.map(post => (
+            <div class="writing-card">
+                <a href={post.link} class="writing-link">
+                    <h3>{post.title}</h3>
+                </a>
+                <div class="writing-meta">{post.date}</div>
+                <p>{post.description}</p>
+            </div>
+        ))}
+    </div>
+</section>
+
+<style>
+    .grid-writing {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .writing-card {
+        border-bottom: 1px solid var(--card-border);
+        padding-bottom: 1.5rem;
+    }
+    
+    .writing-card:last-child {
+        border-bottom: none;
+    }
+
+    .writing-link h3 {
+        font-size: 1.2rem;
+        margin-bottom: 0.25rem;
+        transition: color 0.2s;
+        color: var(--text-color);
+    }
+
+    .writing-link:hover h3 {
+        color: var(--accent-color);
+    }
+
+    .writing-meta {
+        font-size: 0.85rem;
+        color: var(--secondary-text);
+        margin-bottom: 0.5rem;
+    }
+</style>
