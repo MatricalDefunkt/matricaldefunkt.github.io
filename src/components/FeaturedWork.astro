@@ -1,4 +1,6 @@
 ---
+import Spinner from "./Spinner.astro";
+
 interface Project {
   title: string;
   challenge: string;
@@ -7,20 +9,24 @@ interface Project {
   stats: { value: string; label: string }[];
   link?: string;
   linkText?: string;
-  image?: string;
+  image?: string; // small preview shown in card (prefetched)
+  imageFull?: string; // full-res image shown in modal (lazy)
 }
 
 const projects: Project[] = [
   {
-    title: "Node.js Core Contributor",
+    title: "SELinux Maintainer (AUR)",
     challenge:
-      "Improving error handling in the experimental SQLite runner was critical for stability.",
+      "Keep SELinux packages up-to-date and compatible with Arch Linux's rolling release model, ensuring security and stability for users.",
     solution:
-      "Authored and merged C++ patch (PR #61096) to robustly handle edge cases in the native binding layer.",
-    tech: ["C++", "Node.js", "Open Source"],
-    stats: [{ value: "PR #61096", label: "Merged" }],
-    link: "https://github.com/nodejs/node/pull/61096",
-    linkText: "View PR",
+      "Maintain SELinux-related packages in the Arch User Repository (AUR), including regular updates, patching, and responding to user feedback to ensure smooth operation on Arch systems.",
+    tech: ["Linux", "Bash", "Package Management"],
+    stats: [
+      { value: "Active", label: "Maintainer" },
+      { value: "168", label: "Stars" },
+    ],
+    link: "https://github.com/archlinuxhardened/selinux",
+    linkText: "View Repository",
   },
   {
     title: "Custom Gitea Runner",
@@ -35,7 +41,8 @@ const projects: Project[] = [
     ],
     link: "#",
     linkText: "Proprietary",
-    image: "/gitea-runner-autoscaling.png",
+    image: "/gitea-runner-autoscaling-small.png",
+    imageFull: "/gitea-runner-autoscaling.png",
   },
   {
     title: "Genetic Algorithm Scheduler",
@@ -51,21 +58,19 @@ const projects: Project[] = [
     ],
     link: "https://github.com/pranav-suri/timetable-manager-v3",
     linkText: "View Project",
-    image: "/timetable-manager.png",
+    image: "/timetable-manager-small.png",
+    imageFull: "/timetable-manager.png",
   },
   {
-    title: "SELinux Maintainer (AUR)",
+    title: "Node.js Core Contributor",
     challenge:
-      "Keep SELinux packages up-to-date and compatible with Arch Linux's rolling release model, ensuring security and stability for users.",
+      "Improving error handling in the experimental SQLite runner was critical for stability.",
     solution:
-      "Maintain SELinux-related packages in the Arch User Repository (AUR), including regular updates, patching, and responding to user feedback to ensure smooth operation on Arch systems.",
-    tech: ["Linux", "Bash", "Package Management"],
-    stats: [
-      { value: "Active", label: "Maintainer" },
-      { value: "168", label: "Stars" },
-    ],
-    link: "https://github.com/archlinuxhardened/selinux",
-    linkText: "View Repository",
+      "Authored and merged C++ patch (PR #61096) to robustly handle edge cases in the native binding layer.",
+    tech: ["C++", "Node.js", "Open Source"],
+    stats: [{ value: "PR #61096", label: "Merged" }],
+    link: "https://github.com/nodejs/node/pull/61096",
+    linkText: "View PR",
   },
 ];
 ---
@@ -175,6 +180,7 @@ const projects: Project[] = [
                   alt={`Architecture for ${project.title}`}
                   class="expandable-image"
                   data-title={project.title}
+                  data-full-src={project.imageFull ?? project.image}
                 />
               </div>
             </div>
@@ -194,6 +200,9 @@ const projects: Project[] = [
 >
   <button class="modal-close" aria-label="Close modal">&times;</button>
   <div class="modal-content">
+    <div id="modal-spinner" aria-hidden="true">
+      <Spinner />
+    </div>
     <img id="modal-img" src="" alt="" />
     <p id="modal-caption"></p>
   </div>
@@ -203,15 +212,21 @@ const projects: Project[] = [
   .card-header {
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
+    align-items: center;
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
     border-bottom: 1px solid var(--card-border);
   }
 
+  .card-header h3 {
+    min-width: 0;
+  }
+
   .project-link {
     font-size: 0.9rem;
     font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   a.project-link > svg {
@@ -262,6 +277,11 @@ const projects: Project[] = [
     opacity: 0;
     transition: opacity 0.3s ease-in;
     min-height: 0; /* Important for grid transition */
+  }
+
+  img {
+    image-rendering: -webkit-optimize-contrast; /* Chrome/Edge */
+    image-rendering: crisp-edges;
   }
 
   .project-image-wrapper.expanded .project-image {
@@ -354,12 +374,16 @@ const projects: Project[] = [
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
+    flex: 1;
+    min-width: 0;
   }
 
   .chevron-slot {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
+    margin-left: auto;
   }
 
   .toggle-image-btn {
@@ -453,6 +477,20 @@ const projects: Project[] = [
     transform: scale(1);
   }
 
+  /* Loading spinner */
+  #modal-spinner {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 90vw;
+    height: 12rem;
+    color: var(--accent-color);
+  }
+
+  #modal-spinner.visible {
+    display: flex;
+  }
+
   .modal-content img {
     width: 90vw;
     max-height: 85vh;
@@ -462,7 +500,6 @@ const projects: Project[] = [
     border: 1px solid var(--card-border);
     display: block;
     transform-origin: center center;
-    will-change: transform;
     touch-action: none;
     user-select: none;
     -webkit-user-drag: none;
@@ -518,10 +555,11 @@ const projects: Project[] = [
   {
     // Eagerly preload all architecture images into the browser cache so that
     // chevron expansion and modal open never trigger a fresh network request.
+    // Preload only the small preview images (full-res images are loaded lazily on modal open)
     document
       .querySelectorAll<HTMLImageElement>(".expandable-image")
       .forEach((img) => {
-        const url = img.dataset.src ?? img.getAttribute("src") ?? "";
+        const url = img.getAttribute("src") ?? "";
         if (url && !img.complete) {
           const preload = new Image();
           preload.src = url;
@@ -561,6 +599,9 @@ const projects: Project[] = [
       "modal-caption",
     ) as HTMLElement | null;
     const closeBtn = modal?.querySelector(".modal-close") as HTMLElement | null;
+    const modalSpinner = document.getElementById(
+      "modal-spinner",
+    ) as HTMLElement | null;
 
     // --- Zoom / pan state ---
     let scale = 1;
@@ -623,10 +664,16 @@ const projects: Project[] = [
       });
     }
 
+    function setWillChange(active: boolean) {
+      if (!modalImg) return;
+      modalImg.style.willChange = active ? "transform" : "auto";
+    }
+
     function resetZoom() {
       scale = 1;
       originX = 0;
       originY = 0;
+      setWillChange(false);
       updateCursorClass();
       applyTransform();
     }
@@ -641,6 +688,10 @@ const projects: Project[] = [
       modal.classList.add("open");
       document.body.style.overflow = "hidden";
 
+      // Show spinner while full-res image decodes, then swap in the image
+      modalImg.style.display = "none";
+      modalSpinner?.classList.add("visible");
+
       // Force Chrome to decode at full resolution rather than reusing the
       // downscaled texture it cached from the small inline card preview.
       // decode() returns a promise that resolves once the image is fully
@@ -648,17 +699,27 @@ const projects: Project[] = [
       modalImg.src = src;
       modalImg
         .decode()
-        .then(() => requestAnimationFrame(updateDimensions))
-        .catch(() => requestAnimationFrame(updateDimensions));
+        .then(() => {
+          modalSpinner?.classList.remove("visible");
+          modalImg.style.display = "";
+          requestAnimationFrame(updateDimensions);
+        })
+        .catch(() => {
+          modalSpinner?.classList.remove("visible");
+          modalImg.style.display = "";
+          requestAnimationFrame(updateDimensions);
+        });
     }
 
     function closeModal() {
       if (!modal || !modalImg) return;
       modal.classList.remove("open");
       document.body.style.overflow = "";
+      modalSpinner?.classList.remove("visible");
       setTimeout(() => {
         if (!modal.classList.contains("open")) {
           modalImg.src = "";
+          modalImg.style.display = "";
           resetZoom();
         }
       }, 200);
@@ -667,7 +728,9 @@ const projects: Project[] = [
     document.querySelectorAll(".expandable-image").forEach((img) => {
       img.addEventListener("click", () => {
         const el = img as HTMLImageElement;
-        openModal(el.src, el.dataset.title ?? el.alt);
+        // Use full-res image for modal; fall back to preview src if not specified
+        const fullSrc = el.dataset.fullSrc ?? el.src;
+        openModal(fullSrc, el.dataset.title ?? el.alt);
       });
     });
 
@@ -703,6 +766,9 @@ const projects: Project[] = [
         if (next === MIN_SCALE) {
           originX = 0;
           originY = 0;
+          setWillChange(false);
+        } else {
+          setWillChange(true);
         }
 
         scale = next;
@@ -719,6 +785,7 @@ const projects: Project[] = [
     modalImg?.addEventListener("mousedown", (e) => {
       if (scale <= 1) return;
       isDragging = true;
+      setWillChange(true);
       dragStart = { x: e.clientX - originX, y: e.clientY - originY };
       updateCursorClass();
       e.preventDefault();
@@ -734,13 +801,14 @@ const projects: Project[] = [
     window.addEventListener("mouseup", () => {
       if (!isDragging) return;
       isDragging = false;
+      setWillChange(false);
       updateCursorClass();
     });
 
     modalImg?.addEventListener("dblclick", (e) => {
       e.stopPropagation();
       if (scale === MIN_SCALE) {
-        // Zoom in to 3x centered on click position
+        // Zoom in to 2x centered on click position
         const rect = modalImg.getBoundingClientRect();
         const clickX = e.clientX - rect.left - rect.width / 3;
         const clickY = e.clientY - rect.top - rect.height / 3;
@@ -748,6 +816,7 @@ const projects: Project[] = [
         scale = 2;
         originX = -clickX;
         originY = -clickY;
+        setWillChange(true);
         updateCursorClass();
         scheduleTransform();
       } else {
@@ -791,6 +860,9 @@ const projects: Project[] = [
           if (scale === MIN_SCALE) {
             originX = 0;
             originY = 0;
+            setWillChange(false);
+          } else {
+            setWillChange(true);
           }
           updateCursorClass();
           scheduleTransform();
