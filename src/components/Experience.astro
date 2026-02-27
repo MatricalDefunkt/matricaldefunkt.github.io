@@ -4,7 +4,8 @@ interface Job {
   company: string;
   date: string;
   type?: "Full-time" | "Part-time";
-  summary: string;
+  summary?: string;
+  projects?: { name: string; description: string }[];
 }
 
 const jobs: Job[] = [
@@ -12,36 +13,109 @@ const jobs: Job[] = [
     role: "Cloud Infrastructure Engineer (Trainee)",
     company: "Mobigic Technologies",
     date: "Nov 2025 - Present",
-    summary: `Architecting cloud-native infrastructure on Vultr with IaC (Terraform), provisioning hybrid (Linux & Windows) Kubernetes clusters using RKE2 for enterprise-wide migration from Azure. Creating networks with VPCs, subnets, and security groups to ensure secure and scalable deployments. Administering MSSQL and MySQL servers, optimizing performance and ensuring high availability. Set up VPNs and Bastion for secure and easy intra-VPC access.\n\nBuilding and owning CI/CD infrastructure and pipelines with Gitea Actions and Jenkins to automate Android and web builds on VMs and iOS builds on on-prem Mac hardware using Cloudflare Tunnels to streamline development workflows. Used Docker Scout and Trivy in pipelines, ensuring robust container security. Implemented monitoring and alerting with Prometheus and Grafana.`,
+    summary:
+      "Leading the enterprise-wide migration from Azure to Vultr, architecting cloud-native infrastructure and owning the CI/CD pipelines.",
+    projects: [
+      {
+        name: "Hybrid Kubernetes",
+        description:
+          "Provisioned RKE2 clusters (Linux & Windows) via Terraform, securing networks with VPCs, subnets, VPNs, and Bastion hosts.",
+      },
+      {
+        name: "CI/CD Infrastructure",
+        description:
+          "Built Gitea Actions & Jenkins pipelines for Android/Web/iOS builds, utilizing Cloudflare Tunnels to utilize on-prem Mac hardware.",
+      },
+      {
+        name: "Security & Observability",
+        description:
+          "Integrated Docker Scout and Trivy into the CI/CD pipeline for optimal security, alongside Prometheus and Grafana for monitoring.",
+      },
+      {
+        name: "Database Administration",
+        description:
+          "Administered and optimized MSSQL and MySQL servers to ensure high availability and performance.",
+      },
+    ],
   },
   {
     role: "Software Engineer (Trainee)",
     company: "Mobigic Technologies",
     date: "Jul 2025 - Nov 2025",
-    summary:
-      "Built a custom Gitea runner in Go reducing build times by 20%. Architected an Async Monolith resume matcher using FastAPI and LLMs. Developed a JIT graph engine in React/MUI & Go/Postgres to accelerate business processes and reduced reliance on handbooks. Optimized legacy SailsJS apps for a 100% increase in performance.",
+    projects: [
+      {
+        name: "Custom Gitea Runner",
+        description:
+          "Built a custom runner in Go, reducing CI/CD build times by 20%.",
+      },
+      {
+        name: "AI Resume Matcher",
+        description:
+          "Architected an Async Monolith using FastAPI and LLMs for intelligent resume parsing.",
+      },
+      {
+        name: "JIT Graph Engine",
+        description:
+          "Developed in React/MUI & Go/Postgres to accelerate business processes and reduce handbook reliance.",
+      },
+      {
+        name: "Legacy Optimization",
+        description:
+          "Dockerized and optimized a legacy SailsJS application, achieving a 100% increase in performance.",
+      },
+    ],
   },
   {
     role: "Application Development Intern",
     company: "Project: Human City",
     date: "Aug 2024 - Jul 2025",
-    summary:
-      "Led a team of 6 to architect and implement a decentralized social media platform, breaking down client requirements into actionable tasks in an agile environment. Decomposed an Express monolith into 12 event-driven microservices, established AWS CI/CD pipelines that reduced deployment latency by 80%.",
     type: "Part-time",
+    projects: [
+      {
+        name: "Decentralized Social Media",
+        description:
+          "Led a team of 6 to architect and implement the platform, managing agile workflows and client requirements.",
+      },
+      {
+        name: "Microservices Migration",
+        description:
+          "Decomposed a legacy Express monolith into 12 scalable, event-driven microservices.",
+      },
+      {
+        name: "AWS CI/CD Pipelines",
+        description:
+          "Established automated deployment pipelines that reduced deployment latency by 80%.",
+      },
+    ],
   },
   {
     role: "Backend Developer Intern",
     company: "Entelligentsia LLP",
     date: "Dec 2023 - Jan 2024",
-    summary:
-      "Built Serverless APIs using AWS Lambda and API Gateway for real-time messaging and data streaming. Ensured security and compliance by implementing IAM roles and policies, and optimized performance with DynamoDB and S3 for scalable data storage.",
+    projects: [
+      {
+        name: "Serverless APIs",
+        description:
+          "Built real-time messaging and data streaming services using AWS Lambda and API Gateway.",
+      },
+      {
+        name: "Cloud Security",
+        description:
+          "Ensured security and compliance by implementing strict AWS IAM roles and policies.",
+      },
+      {
+        name: "Data Optimization",
+        description:
+          "Optimized performance and scalable data storage utilizing DynamoDB and S3.",
+      },
+    ],
   },
 ];
 ---
 
 <section>
   <h2>Experience</h2>
-  <div>
+  <div class="experience-list">
     {
       jobs.map((job) => (
         <div class="list-item">
@@ -55,10 +129,19 @@ const jobs: Job[] = [
               <div class="list-date">{job.date}</div>
             </div>
           </div>
-          <p
-            class="list-summary-text"
-            set:html={job.summary.replaceAll("\n", "<br/>")}
-          />
+
+          {job.summary && <p class="list-summary-text">{job.summary}</p>}
+
+          {job.projects && (
+            <div class="job-projects-grid">
+              {job.projects.map((project) => (
+                <div class="job-project-card">
+                  <span class="project-name">{project.name}</span>
+                  <span class="project-desc">{project.description}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       ))
     }
@@ -66,6 +149,18 @@ const jobs: Job[] = [
 </section>
 
 <style>
+  .experience-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .list-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
   .list-date-group {
     display: flex;
     align-items: center;
@@ -84,7 +179,55 @@ const jobs: Job[] = [
   .list-summary-text {
     color: var(--secondary-text);
     font-size: 0.95rem;
-    margin: 0.5rem 0 0 0;
+    margin: 0;
     line-height: 1.5;
   }
-</style>
+
+  .job-projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.25rem;
+  }
+
+  .job-project-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    padding: 0.85rem 1rem;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    transition: border-color 0.2s ease;
+  }
+
+  .job-project-card:hover {
+    border-color: var(--accent-color);
+  }
+
+  .project-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .project-name::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--accent-color);
+  }
+
+  .project-desc {
+    font-size: 0.85rem;
+    color: var(--secondary-text);
+    line-height: 1.5;
+  }
+
+  @media (max-width: 600px) {
+

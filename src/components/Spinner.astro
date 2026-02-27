@@ -1,0 +1,36 @@
+---
+interface Props {
+  size?: string;
+}
+const { size = "3rem" } = Astro.props;
+---
+
+<svg
+  viewBox="0 0 50 50"
+  xmlns="http://www.w3.org/2000/svg"
+  style={`width:${size};height:${size}`}
+  aria-hidden="true"
+>
+  <circle
+    cx="25"
+    cy="25"
+    r="20"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="4"
+    stroke-linecap="round"></circle>
+</svg>
+
+<style>
+  svg {
+    animation: spin 1s ease-in-out infinite;
+    stroke-dasharray: 80;
+    stroke-dashoffset: 60;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>

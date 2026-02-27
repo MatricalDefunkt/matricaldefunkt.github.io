@@ -1,4 +1,6 @@
 ---
+import Spinner from "../components/Spinner.astro";
+
 interface Props {
   title?: string;
   description?: string;
@@ -22,12 +24,40 @@ import "../styles/global.css";
     <meta name="viewport" content="width=device-width" />
     <meta name="color-scheme" content="dark" />
     <meta name="generator" content={Astro.generator} />
+    <!-- Super spinner: inline so it paints before any external resource is fetched -->
+    <style>
+      #page-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #111110;
+        color:;
+        transition: opacity 0.35s ease;
+      }
+      #page-loader.done {
+        opacity: 0;
+        pointer-events: none;
+      }
+    </style>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Non-blocking font load: preload then swap to stylesheet on load -->
     <link
+      id="fonts-css"
+      rel="preload"
+      as="style"
       href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
-      rel="stylesheet"
+      onload="this.rel='stylesheet'"
     />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
     <title>{title}</title>
     <meta name="description" content={description} />
 
@@ -47,6 +77,9 @@ import "../styles/global.css";
     <meta name="twitter:image:alt" content="Pramit Sharma" />
   </head>
   <body>
+    <div id="page-loader" aria-hidden="true">
+      <Spinner size="2.75rem" />
+    </div>
     <main>
       <slot />
     </main>
@@ -62,6 +95,32 @@ import "../styles/global.css";
         </a>
       </div>
     </footer>
+    <script>
+      function dismissLoader() {
+        const loader = document.getElementById("page-loader");
+        if (!loader) return;
+        loader.classList.add("done");
+        loader.addEventListener("transitionend", () => loader.remove(), {
+          once: true,
+        });
+      }
+
+      // Fonts CSS is loaded non-blocking (preload). Wait for it to swap to
+      // 'stylesheet', which triggers font downloads, then wait for fonts.ready.
+      // If it's already a stylesheet (cached), go straight to fonts.ready.
+      const fontsLink = document.getElementById(
+        "fonts-css",
+      ) as HTMLLinkElement | null;
+      if (fontsLink && fontsLink.rel !== "stylesheet") {
+        fontsLink.addEventListener(
+          "load",
+          () => document.fonts.ready.then(dismissLoader),
+          { once: true },
+        );
+      } else {
+        document.fonts.ready.then(dismissLoader);
+      }
+    </script>
   </body>
 </html>
 
@@ -85,7 +144,7 @@ import "../styles/global.css";
     align-items: center;
     gap: 0.4rem;
     font-size: 0.78rem;
-    color: #7a7672;
+    color: var(--secondary-text);
     text-decoration: none;
     border: 1px solid #2c2b27;
     border-radius: 6px;
