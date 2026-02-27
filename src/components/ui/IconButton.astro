@@ -1,0 +1,90 @@
+---
+interface Props {
+  ariaLabel: string;
+  title?: string;
+  class?: string;
+  variant?: "default" | "modal-close";
+  id?: string;
+}
+
+const {
+  ariaLabel,
+  title,
+  class: className = "",
+  variant = "default",
+  id,
+} = Astro.props;
+
+const baseClass = variant === "default" ? "icon-btn" : "close-modal-btn";
+---
+
+<button
+  type="button"
+  aria-label={ariaLabel}
+  title={title}
+  class:list={[className, baseClass]}
+  id={id}
+>
+  <slot />
+</button>
+
+<style>
+  .icon-btn {
+    background: none;
+    border: none;
+    color: var(--secondary-text);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  .icon-btn > :global(svg) {
+    translate: 0 0;
+    transition:
+      translate 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .icon-btn:hover {
+    color: var(--accent);
+    background: var(--bg);
+  }
+
+  .icon-btn:hover > :global(svg) {
+    translate: 0 4px;
+  }
+
+  .icon-btn.active :global(svg) {
+    transform: rotate(180deg);
+  }
+
+  .icon-btn.active:hover > :global(svg) {
+    translate: 0 -4px;
+  }
+
+  .close-modal-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    z-index: 1001;
+  }
+
+  .close-modal-btn:hover {
+    background: rgba(0, 0, 0, 0.8);
+  }
+</style>

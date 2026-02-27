@@ -1,0 +1,50 @@
+---
+interface Props {
+  variant?: "default" | "minimal";
+  class?: string;
+}
+
+const { variant = "default", class: className = "" } = Astro.props;
+
+const baseClass = variant === "default" ? "card" : "job-project-card";
+---
+
+<div class:list={[baseClass, className]}>
+  <slot />
+</div>
+
+<style>
+  /* Default Card Styles (from FeaturedWork) */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Minimal Card Styles (from Experience) */
+  .job-project-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    padding: 0.85rem 1rem;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    transition: border-color 0.2s ease;
+  }
+
+  .job-project-card:hover {
+    border-color: var(--accent);
+  }
+</style>

@@ -1,0 +1,94 @@
+---
+import Badge from "./Badge.astro";
+
+interface Props {
+  title: string;
+  subtitle: string;
+  date: string;
+  badge?: string;
+  summary?: string;
+  class?: string;
+}
+
+const {
+  title,
+  subtitle,
+  date,
+  badge,
+  summary,
+  class: className = "",
+} = Astro.props;
+---
+
+<div class:list={["list-item", className]}>
+  <div class="list-header">
+    <div>
+      <div class="list-title">{title}</div>
+      <div class="list-subtitle">{subtitle}</div>
+    </div>
+    <div class="list-date-group">
+      {badge && <Badge text={badge} variant="outline" />}
+      <div class="list-date">{date}</div>
+    </div>
+  </div>
+
+  {summary && <p class="list-summary-text">{summary}</p>}
+
+  <slot />
+</div>
+
+<style>
+  .list-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .list-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text);
+  }
+
+  .list-subtitle {
+    color: var(--accent);
+    font-size: 0.95rem;
+    margin-top: 0.1rem;
+  }
+
+  .list-date-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .list-date {
+    color: var(--secondary-text);
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  .list-summary-text {
+    color: var(--secondary-text);
+    font-size: 0.95rem;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 900px) {
+    .list-header {
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .list-date-group {
+      margin-top: 0.25rem;
+    }
+  }
+</style>

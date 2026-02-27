@@ -1,4 +1,7 @@
 ---
+import ListItem from "../../components/ui/ListItem.astro";
+import Card from "../../components/ui/Card.astro";
+
 interface Job {
   role: string;
   company: string;
@@ -118,31 +121,24 @@ const jobs: Job[] = [
   <div class="experience-list">
     {
       jobs.map((job) => (
-        <div class="list-item">
-          <div class="list-header">
-            <div>
-              <div class="list-title">{job.role}</div>
-              <div class="list-subtitle">{job.company}</div>
-            </div>
-            <div class="list-date-group">
-              {job.type && <span class="list-type">{job.type}</span>}
-              <div class="list-date">{job.date}</div>
-            </div>
-          </div>
-
-          {job.summary && <p class="list-summary-text">{job.summary}</p>}
-
+        <ListItem
+          title={job.role}
+          subtitle={job.company}
+          date={job.date}
+          badge={job.type}
+          summary={job.summary}
+        >
           {job.projects && (
             <div class="job-projects-grid">
               {job.projects.map((project) => (
-                <div class="job-project-card">
+                <Card variant="minimal">
                   <span class="project-name">{project.name}</span>
                   <span class="project-desc">{project.description}</span>
-                </div>
+                </Card>
               ))}
             </div>
           )}
-        </div>
+        </ListItem>
       ))
     }
   </div>
@@ -155,54 +151,11 @@ const jobs: Job[] = [
     gap: 2.5rem;
   }
 
-  .list-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .list-date-group {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .list-type {
-    font-size: 0.7rem;
-    color: var(--secondary-text);
-    border: 1px solid var(--card-border);
-    border-radius: 4px;
-    padding: 0.15rem 0.45rem;
-    white-space: nowrap;
-  }
-
-  .list-summary-text {
-    color: var(--secondary-text);
-    font-size: 0.95rem;
-    margin: 0;
-    line-height: 1.5;
-  }
-
   .job-projects-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 0.75rem;
     margin-top: 0.25rem;
-  }
-
-  .job-project-card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    padding: 0.85rem 1rem;
-    border-radius: 6px;
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-    transition: border-color 0.2s ease;
-  }
-
-  .job-project-card:hover {
-    border-color: var(--accent-color);
   }
 
   .project-name {
@@ -229,5 +182,5 @@ const jobs: Job[] = [
     line-height: 1.5;
   }
 
-  @media (max-width: 600px) {
+  @media (max-width: 900px) {
 

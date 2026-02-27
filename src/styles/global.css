@@ -1,6 +1,7 @@
 :root {
   color-scheme: dark;
-  --bg-color: #111110;
+  --bg-color: oklch(17% 0 0);
+  --content-bg-color: oklch(20% 0 0);
   --text-color: #e6e4e0;
   --accent-color: #a8a49c;
   --secondary-text: oklch(70% 0.00777 67.486);
@@ -8,8 +9,17 @@
   --card-border: #2c2b27;
 }
 
+html {
+  scroll-behavior: smooth;
+  overflow-x: clip;
+}
+
 body {
-  font-family: "Ubuntu", system-ui, -apple-system, sans-serif;
+  font-family:
+    "Ubuntu",
+    system-ui,
+    -apple-system,
+    sans-serif;
   background-color: var(--bg-color);
   color: var(--text-color);
   line-height: 1.6;
@@ -17,14 +27,25 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 main {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.container {
   max-width: 900px;
   width: 100%;
-  padding: 4rem 2rem;
+  padding: 0;
   margin: 0 auto;
+}
+
+@media (max-width: 900px) {
+  .container {
+    max-width: 90%;
+  }
 }
 
 /* Typography */
@@ -60,7 +81,6 @@ h2 {
 
 h3 {
   font-size: 1.2rem;
-  margin: 0 0 0.5rem 0;
   color: #e6e4e0;
 }
 
@@ -69,7 +89,8 @@ p {
   margin: 0;
 }
 
-a, span.project-link {
+a,
+span.project-link {
   color: var(--accent-color);
   text-decoration: none;
   transition: color 0.2s;
@@ -105,7 +126,9 @@ a:hover {
   border: 1px solid var(--card-border);
   border-radius: 0.75rem;
   padding: 1.5rem;
-  transition: transform 0.2s, border-color 0.2s;
+  transition:
+    transform 0.2s,
+    border-color 0.2s;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -187,9 +210,9 @@ a:hover {
 }
 
 .list-desc {
-    color: var(--secondary-text);
-    font-size: 0.95rem;
-    margin-top: 0.5rem;
+  color: var(--secondary-text);
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
 }
 
 .list-summary {
@@ -205,11 +228,11 @@ a:hover {
 
 /* Responsive adjustments */
 
-@media (max-width: 600px) {
+@media (max-width: 900px) {
   h1 {
     font-size: 2.5rem;
   }
-  
+
   .list-header {
     flex-direction: column;
     align-items: flex-start;

@@ -1,0 +1,82 @@
+---
+interface Props {
+  href: string;
+  external?: boolean;
+  showIcon?: boolean;
+  class?: string;
+  variant?: "project" | "social";
+}
+
+const {
+  href,
+  external = false,
+  showIcon = false,
+  class: className = "",
+  variant = "project",
+} = Astro.props;
+
+const baseClass = variant === "project" ? "project-link" : "social-link";
+const target = external ? "_blank" : undefined;
+const rel = external ? "noopener noreferrer" : undefined;
+---
+
+<a href={href} target={target} rel={rel} class:list={[baseClass, className]}>
+  <slot />
+  {
+    showIcon && (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="12"
+        height="12"
+        viewBox="0 0 26 26"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="4"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <line x1="2" y1="11" x2="20" y2="11" />
+        <polyline points="15 4 20 11 15 18" />
+      </svg>
+    )
+  }
+</a>
+
+<style>
+  .project-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: color 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .project-link > svg {
+    translate: 0px 0;
+    transition: translate 0.2s ease;
+  }
+
+  .project-link:hover {
+    color: var(--text);
+  }
+
+  .project-link:hover > svg {
+    translate: 4px 0;
+  }
+
+  .social-link {
+    color: var(--secondary-text);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+
+  .social-link:hover {
+    color: var(--accent);
+  }
+</style>

@@ -1,20 +1,138 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import Hero from "../components/Hero.astro";
-import FeaturedWork from "../components/FeaturedWork.astro";
-import Experience from "../components/Experience.astro";
-import Skills from "../components/Skills.astro";
-import Awards from "../components/Awards.astro";
-import Education from "../components/Education.astro";
-import TechnicalWriting from "../components/TechnicalWriting.astro";
+import Hero from "./_index/Hero.astro";
+import FeaturedWork from "./_index/FeaturedWork.astro";
+import Experience from "./_index/Experience.astro";
+import Skills from "./_index/Skills.astro";
+import Awards from "./_index/Awards.astro";
+import Education from "./_index/Education.astro";
+import TechnicalWriting from "./_index/TechnicalWriting.astro";
 ---
 
 <Layout>
-  <Hero />
-  <Skills />
-  <FeaturedWork />
-  <Experience />
-  <!-- <TechnicalWriting /> -->
-  <Awards />
-  <Education />
+  <div class="hero-wrapper">
+    <div class="container">
+      <Hero />
+    </div>
+    <button
+      class="scroll-down-btn"
+      aria-label="Scroll down"
+      id="scroll-down-btn"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        ><polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </button>
+  </div>
+  <div class="content-wrapper">
+    <div class="container">
+      <Skills />
+      <FeaturedWork />
+      <Experience />
+      <!-- <TechnicalWriting /> -->
+      <Awards />
+      <Education />
+    </div>
+  </div>
 </Layout>
+
+<style>
+  .hero-wrapper {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    z-index: 0;
+  }
+
+  .content-wrapper {
+    position: relative;
+    z-index: 1;
+    background-color: var(--content-bg-color);
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+    box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.4);
+  }
+
+  .scroll-down-btn {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: transparent;
+    border: none;
+    outline: none;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--secondary-text);
+    cursor: pointer;
+    animation: bounce 2s infinite;
+    transition:
+      color 0.2s ease,
+      opacity 0.4s ease;
+    z-index: 10;
+    padding: 0;
+  }
+
+  .scroll-down-btn:hover {
+    color: var(--accent-color);
+  }
+
+  .scroll-down-btn:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+  }
+
+  @keyframes bounce {
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+      transform: translateY(0) translateX(-50%);
+    }
+    40% {
+      transform: translateY(-5px) translateX(-50%);
+    }
+    60% {
+      transform: translateY(-2px) translateX(-50%);
+    }
+  }
+</style>
+
+<script>
+  const scrollBtn = document.getElementById("scroll-down-btn");
+  if (scrollBtn) {
+    scrollBtn.addEventListener("click", () => {
+      window.scrollTo({ top: window.innerHeight, behavior: "smooth" });
+    });
+  }
+
+  window.addEventListener(
+    "scroll",
+    () => {
+      const links = document.getElementById("hero-social-links");
+      const linksMobile = document.getElementById("hero-social-links-mobile");
+      const shouldHide =
+        window.scrollY >
+        window.innerHeight * (window.outerWidth > 900 ? 0.25 : 0.1);
+      links?.classList.toggle("hidden", shouldHide);
+      linksMobile?.classList.toggle("hidden", shouldHide);
+    },
+    { passive: true },
+  );
+</script>

@@ -1,0 +1,83 @@
+---
+import FloatingLinks from "../../components/ui/FloatingLinks.astro";
+---
+
+<header class="header-bio">
+  <FloatingLinks />
+  <div class="hero-content">
+    <p class="intro">
+      I'm an Infrastructure & Backend Engineer, and a <strong
+        >Node.js Core Contributor</strong
+      >, based in Pune, India. I build robust cloud-native systems and scalable
+      backend architectures.
+    </p>
+    <div class="author-info">
+      <img src="/profile.jpg" alt="Pramit Sharma" class="profile-photo" />
+      <span class="author-name">Pramit Sharma</span>
+    </div>
+    <FloatingLinks mobile={true} />
+  </div>
+</header>
+
+<style>
+  .header-bio {
+    position: relative;
+    width: 100%;
+  }
+
+  .hero-content {
+    max-width: 100%;
+    margin: 0 auto;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .intro {
+    font-size: 1.75rem;
+    color: var(--text-color);
+    line-height: 1.5;
+    margin: 0;
+    font-weight: 300;
+  }
+
+  .intro strong {
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  .author-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    margin-top: 3rem;
+  }
+
+  .profile-photo {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--card-border);
+    display: block;
+  }
+
+  .author-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-color);
+    letter-spacing: 0.02em;
+  }
+
+  @media (max-width: 900px) {
+    .intro {
+      font-size: 1.35rem;
+    }
+
+    .author-info {
+      margin-top: 2rem;
+    }
+  }
+</style>

@@ -1,5 +1,5 @@
 ---
-import Spinner from "../components/Spinner.astro";
+import Spinner from "../components/ui/Spinner.astro";
 
 interface Props {
   title?: string;
@@ -85,6 +85,75 @@ import "../styles/global.css";
     </main>
     <footer>
       <div class="footer-inner">
+        <div class="footer-social-links" id="footer-social-links">
+          <a
+            href="https://github.com/MatricalDefunkt"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="footer-link"
+            aria-label="GitHub"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><path
+                d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"
+              ></path></svg
+            >
+          </a>
+          <a
+            href="https://linkedin.com/in/pramit-sharma"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="footer-link"
+            aria-label="LinkedIn"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><path
+                d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"
+              ></path><rect x="2" y="9" width="4" height="12"></rect><circle
+                cx="4"
+                cy="4"
+                r="2"></circle></svg
+            >
+          </a>
+          <a
+            href="mailto:dev@matricaldefunkt.me"
+            class="footer-link"
+            aria-label="Email"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><path
+                d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+              ></path><polyline points="22,6 12,13 2,6"></polyline></svg
+            >
+          </a>
+        </div>
         <a
           href="https://www.youtube.com/watch?v=2_Dtmpe9qaQ"
           target="_blank"
@@ -120,6 +189,24 @@ import "../styles/global.css";
       } else {
         document.fonts.ready.then(dismissLoader);
       }
+
+      // Footer social links animation
+      const footerLinks = document.getElementById("footer-social-links");
+      if (footerLinks) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("visible");
+              } else {
+                entry.target.classList.remove("visible");
+              }
+            });
+          },
+          { threshold: 0.1 },
+        );
+        observer.observe(footerLinks);
+      }
     </script>
   </body>
 </html>
@@ -127,7 +214,7 @@ import "../styles/global.css";
 <style>
   footer {
     width: 100%;
-    padding: 1.25rem 2rem;
+    padding: 1.5rem 0;
     border-top: 1px solid #2c2b27;
     background-color: #111110;
   }
@@ -136,7 +223,38 @@ import "../styles/global.css";
     max-width: 900px;
     margin: 0 auto;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-social-links {
+    display: flex;
+    gap: 1.25rem;
+    transform: translateX(-50px);
+    opacity: 0;
+    transition:
+      transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 0.6s ease;
+  }
+
+  .footer-social-links.visible {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  .footer-link {
+    color: var(--secondary-text);
+    transition:
+      color 0.2s ease,
+      transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .footer-link:hover {
+    color: var(--accent-color);
+    transform: translateY(-2px);
   }
 
   .footer-btn {
@@ -166,5 +284,13 @@ import "../styles/global.css";
     color: #d0cdc6;
     border-color: #a8a49c;
     text-decoration: none;
+  }
+
+  @media (max-width: 900px) {
+    .footer-inner {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: center;
+    }
   }
 </style>

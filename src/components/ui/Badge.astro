@@ -1,0 +1,33 @@
+---
+interface Props {
+  text: string;
+  variant?: "solid" | "outline";
+  class?: string;
+}
+
+const { text, variant = "solid", class: className = "" } = Astro.props;
+
+const baseClass = variant === "solid" ? "tag" : "list-type";
+---
+
+<span class:list={[baseClass, className]}>{text}</span>
+
+<style>
+  /* Solid Variant (from FeaturedWork .tag) */
+  .tag {
+    background: var(--bg);
+    color: var(--secondary-text);
+    border-radius: 16px;
+    font-size: 0.8rem;
+    border: 1px solid var(--card-border);
+  }
+
+  /* Outline Variant (from Experience .list-type) */
+  .list-type {
+    font-size: 0.7rem;
+    color: var(--secondary-text);
+    border: 1px solid var(--card-border);
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+</style>

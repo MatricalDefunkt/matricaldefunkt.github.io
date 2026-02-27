@@ -1,0 +1,227 @@
+---
+const ICON_COLOR = "a8a49c";
+
+const groups = [
+  {
+    label: "Languages",
+    items: [
+      { name: "Go", icon: "go" },
+      { name: "TypeScript", icon: "typescript" },
+      { name: "Python", icon: "python" },
+      { name: "C++", icon: "cplusplus" },
+    ],
+  },
+  {
+    label: "Platform & Infrastructure",
+    items: [
+      { name: "Kubernetes", icon: "kubernetes" },
+      { name: "Docker", icon: "docker" },
+      { name: "Terraform", icon: "terraform" },
+      { name: "Linux", icon: "linux" },
+    ],
+  },
+  {
+    label: "Cloud",
+    items: [
+      { name: "AWS", icon: null, local: "/aws.png" },
+      { name: "GCP", icon: "googlecloud" },
+      { name: "Azure", icon: null, local: "/azure.svg" },
+      { name: "Vultr", icon: "vultr" },
+    ],
+  },
+  {
+    label: "Tools & Observability",
+    items: [
+      { name: "Prometheus", icon: "prometheus" },
+      { name: "Grafana", icon: "grafana" },
+      { name: "GitHub", icon: "github" },
+      { name: "Gitea", icon: "gitea" },
+    ],
+  },
+  {
+    label: "DevSecOps",
+    items: [
+      { name: "Docker Scout", icon: "docker" },
+      { name: "Trivy", icon: "trivy" },
+      { name: "GitHub Actions", icon: "githubactions" },
+      { name: "Jenkins", icon: "jenkins" },
+    ],
+  },
+];
+
+const softSkills = [
+  "Agile Methodologies",
+  "Team Leadership",
+  "Technical Documentation",
+  "Cross-functional Collaboration",
+];
+---
+
+<section>
+  <h2>Stack</h2>
+
+  <div class="groups">
+    {
+      groups.map((group) => (
+        <div class="group">
+          <span class="group-label">{group.label}</span>
+          <div class="skill-row">
+            {group.items.map((item) => (
+              <div class="skill-card">
+                {item.local ? (
+                  <span
+                    class="icon-mask"
+                    style={`-webkit-mask-image: url('${item.local}'); mask-image: url('${item.local}');`}
+                    aria-hidden="true"
+                  />
+                ) : item.icon ? (
+                  <img
+                    src={`https://cdn.simpleicons.org/${item.icon}/${ICON_COLOR}`}
+                    alt={item.name}
+                    width="28"
+                    height="28"
+                    loading="lazy"
+                  />
+                ) : (
+                  <span class="icon-text-only" aria-hidden="true" />
+                )}
+                <span class="skill-name">{item.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="soft-skills-section">
+    <span class="group-label">Soft Skills</span>
+    <div class="soft-skills-row">
+      {softSkills.map((s) => <span class="soft-badge">{s}</span>)}
+    </div>
+  </div>
+</section>
+
+<style>
+  .groups {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.75rem 2.5rem;
+  }
+
+  .group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .group-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+    color: var(--secondary-text);
+    opacity: 0.6;
+  }
+
+  .skill-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+  }
+
+  .skill-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    width: 100%;
+    min-height: 90px;
+    padding: 0.6rem 0.4rem 0.5rem;
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    background: var(--card-bg);
+    transition:
+      border-color 0.2s ease,
+      transform 0.2s ease;
+    cursor: default;
+    box-sizing: border-box;
+  }
+
+  .skill-card:hover {
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+  }
+
+  .skill-card img {
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .icon-mask {
+    display: block;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    background-color: #a7a29a;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+  }
+
+  .icon-text-only {
+    display: block;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+  }
+
+  .skill-name {
+    font-size: 0.8rem;
+    color: var(--secondary-text);
+    text-align: center;
+    line-height: 1.2;
+    word-break: break-word;
+    margin-top: 0.25rem;
+  }
+
+  .soft-skills-section {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .soft-skills-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .soft-badge {
+    font-size: 0.8rem;
+    color: var(--secondary-text);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 0.25rem 0.75rem;
+    background: var(--card-bg);
+  }
+
+  @media (max-width: 900px) {
+    .groups {
+      grid-template-columns: 1fr;
+    }
+
+    .skill-row {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .skill-card {
+      width: auto;
+    }
+  }
+</style>
