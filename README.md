@@ -1,43 +1,97 @@
-# Astro Starter Kit: Minimal
+# Portfolio
+
+A fast, minimal, single-page tech portfolio site built with [Astro](https://astro.build). No JS framework; just Astro components and vanilla TypeScript. Deploys to GitHub Pages as a fully static site.
+
+**Live:** [matricaldefunkt.me](https://matricaldefunkt.me)
+
+## Features
+
+- Sticky hero panel with scroll-reveal content sections
+- Collapsible work experience cards with animated chevron (CSS grid trick, no JS height calculation)
+- Expandable architecture diagrams with zoom/pan/pinch gesture support
+- Zero render-blocking CSS (all styles inlined at build time)
+- Dark-only, design-token driven theme via CSS custom properties
+
+## Sections
+
+| Section       | File                                  |
+| ------------- | ------------------------------------- |
+| Hero          | `src/pages/_index/Hero.astro`         |
+| Skills        | `src/pages/_index/Skills.astro`       |
+| Featured Work | `src/pages/_index/FeaturedWork.astro` |
+| Experience    | `src/pages/_index/Experience.astro`   |
+| Leadership    | `src/pages/_index/Leadership.astro`   |
+| Awards        | `src/pages/_index/Awards.astro`       |
+| Education     | `src/pages/_index/Education.astro`    |
+
+## Use This as Your Own Portfolio
+
+All content is plain TypeScript data arrays in each section file.
+
+### 1. Fork & clone
 
 ```sh
-bun create astro@latest -- --template minimal
+git clone https://github.com/matricaldefunkt/matricaldefunkt.github.io my-portfolio
+cd my-portfolio
+bun install
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+### 2. Update your details
 
-## 🚀 Project Structure
+Each section file in `src/pages/_index/` contains a typed `const` array at the top. Edit those arrays with your own content, the types enforce the shape.
 
-Inside of your Astro project, you'll see the following folders and files:
+Key files to update:
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+- **[`Hero.astro`](src/pages/_index/Hero.astro)**: name, title, tagline, social links
+- **[`Experience.astro`](src/pages/_index/Experience.astro)**: jobs (role, company, date, summary, project bullets)
+- **[`Skills.astro`](src/pages/_index/Skills.astro)**: skill categories and items
+- **[`FeaturedWork.astro`](src/pages/_index/FeaturedWork.astro)**: projects (title, challenge, solution, stats, tech, links, optional images)
+- **[`Education.astro`](src/pages/_index/Education.astro)**: degrees
+- **[`Awards.astro`](src/pages/_index/Awards.astro)**: recognitions
+- **[`Leadership.astro`](src/pages/_index/Leadership.astro)**: leadership/volunteer roles (hidden until populated)
+- **[`src/layouts/Layout.astro`](src/layouts/Layout.astro)**: SEO meta title, description, OG image URL
+
+### 3. Update the site URL
+
+Edit `astro.config.mjs`:
+
+```js
+export default defineConfig({
+  site: "https://your-username.github.io", // or your custom domain
+});
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+If using a custom domain, update `CNAME` with your domain name.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+### 4. Run locally
 
-Any static assets, like images, can be placed in the `public/` directory.
+```sh
+bun dev      # http://localhost:4321
+bun build    # production build -> ./dist/
+bun preview  # preview the production build
+```
 
-## 🧞 Commands
+### 5. Deploy
 
-All commands are run from the root of the project, from a terminal:
+The repo is set up for **GitHub Pages**. Push to `main` if you have the GitHub Pages action configured, it deploys automatically. Otherwise go to **Settings -> Pages** and point it at the `gh-pages` branch or `./dist`.
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `bun install`             | Installs dependencies                            |
-| `bun dev`             | Starts local dev server at `localhost:4321`      |
-| `bun build`           | Build your production site to `./dist/`          |
-| `bun preview`         | Preview your build locally, before deploying     |
-| `bun astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `bun astro -- --help` | Get help using the Astro CLI                     |
+## Project Structure
 
-## 👀 Want to learn more?
+```
+src/
+├── components/ui/    # Shared primitives (Badge, Card, ChevronToggle, etc.)
+├── layouts/          # HTML shell, SEO, global font load
+├── pages/
+│   ├── index.astro   # Composes all sections — the only page
+│   └── _index/       # One .astro file per section
+└── styles/
+    └── global.css    # Design tokens (CSS vars), typography, .container
+public/               # Static assets (images, favicon)
+```
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+## Tech Stack
+
+- [Astro](https://astro.build) static site generator
+- Vanilla TypeScript
+- Pure CSS with custom properties
+- Deployed on GitHub Pages
