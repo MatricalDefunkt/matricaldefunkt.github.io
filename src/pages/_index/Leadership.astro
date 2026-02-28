@@ -1,0 +1,175 @@
+---
+import ListItem from "../../components/ui/ListItem.astro";
+import Card from "../../components/ui/Card.astro";
+import ChevronToggle from "../../components/ui/ChevronToggle.astro";
+
+interface Role {
+  title: string;
+  organization: string;
+  date: string;
+  summary: string;
+  highlights?: { name: string; description: string }[];
+}
+
+const roles: Role[] = [
+  {
+    title: "President",
+    organization: "CodeX SIT",
+    date: "Jan 2025 - Present",
+    summary:
+      "Leading the student-run coding club at Symbiosis Institute of Technology, fostering a vibrant community of tech enthusiasts and organizing workshops, hackathons, and mentorship programs to empower students in their coding journey.",
+    highlights: [
+      {
+        name: "Community Growth",
+        description:
+          "Grew club membership by 150% through targeted outreach and engaging events.",
+      },
+      {
+        name: "Signature Events",
+        description:
+          "Organized a 'CodeX Hackathon' attracting 500+ participants from across the region.",
+      },
+      {
+        name: "Mentorship Program",
+        description:
+          "Launched a mentorship initiative connecting experienced members with newcomers, resulting in improved skill development and retention.",
+      },
+    ],
+  },
+];
+---
+
+{
+  roles.length > 0 && (
+    <section>
+      <h2>Leadership</h2>
+      <div class="leadership-list">
+        {roles.map((role) => (
+          <ListItem
+            title={role.title}
+            subtitle={role.organization}
+            date={role.date}
+          >
+            <div class="role-summary-row">
+              <p class="role-summary">{role.summary}</p>
+              {role.highlights && <ChevronToggle ariaLabel="Show highlights" />}
+            </div>
+            {role.highlights && (
+              <div class="role-details">
+                <div class="role-details-inner">
+                  <div class="role-highlights-grid">
+                    {role.highlights.map((item) => (
+                      <Card variant="minimal">
+                        <span class="highlight-name">{item.name}</span>
+                        <span class="highlight-desc">{item.description}</span>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </ListItem>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .leadership-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .role-summary-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    cursor: pointer;
+  }
+
+  .role-summary {
+    flex: 1;
+    font-size: 0.95rem;
+    color: var(--secondary-text);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .role-details {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition:
+      grid-template-rows 0.3s ease-out,
+      margin-top 0.3s ease-out;
+    margin-top: 0;
+  }
+
+  .role-details.expanded {
+    grid-template-rows: 1fr;
+    margin-top: 0.25rem;
+  }
+
+  .role-details-inner {
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .role-highlights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 0.75rem;
+    padding-top: 0.5rem;
+  }
+
+  .highlight-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .highlight-name::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--accent-color);
+  }
+
+  .highlight-desc {
+    font-size: 0.85rem;
+    color: var(--secondary-text);
+    line-height: 1.5;
+  }
+
+  @media (max-width: 900px) {
+    .role-highlights-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>(".role-summary-row").forEach((row) => {
+    row.addEventListener("click", () => {
+      const listItem = row.closest(".list-item");
+      if (!listItem) return;
+
+      const details = listItem.querySelector<HTMLElement>(".role-details");
+      const btn = row.querySelector<HTMLButtonElement>(".chevron-toggle");
+      if (!details || !btn) return;
+
+      btn.classList.toggle("active");
+      details.classList.toggle("expanded");
+      btn.setAttribute(
+        "aria-expanded",
+        btn.classList.contains("active") ? "true" : "false",
+      );
+    });
+  });
+</script>

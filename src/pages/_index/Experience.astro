@@ -1,13 +1,14 @@
 ---
 import ListItem from "../../components/ui/ListItem.astro";
 import Card from "../../components/ui/Card.astro";
+import ChevronToggle from "../../components/ui/ChevronToggle.astro";
 
 interface Job {
   role: string;
   company: string;
   date: string;
   type?: "Full-time" | "Part-time";
-  summary?: string;
+  summary: string;
   projects?: { name: string; description: string }[];
 }
 
@@ -45,6 +46,8 @@ const jobs: Job[] = [
     role: "Software Engineer (Trainee)",
     company: "Mobigic Technologies",
     date: "Jul 2025 - Nov 2025",
+    summary:
+      "Built internal tooling at Mobigic including a custom Go CI runner, an AI resume matcher, a flow automation engine, and optimized legacy infrastructure.",
     projects: [
       {
         name: "Custom Gitea Runner",
@@ -73,6 +76,8 @@ const jobs: Job[] = [
     company: "Project: Human City",
     date: "Aug 2024 - Jul 2025",
     type: "Part-time",
+    summary:
+      "Led a 6-person team to architect a decentralized social platform, decomposing a monolith into 12 microservices and slashing deploy latency by 80%.",
     projects: [
       {
         name: "Decentralized Social Media",
@@ -95,6 +100,8 @@ const jobs: Job[] = [
     role: "Backend Developer Intern",
     company: "Entelligentsia LLP",
     date: "Dec 2023 - Jan 2024",
+    summary:
+      "Built serverless real-time APIs on AWS Lambda and API Gateway, hardened with strict auth and backed by optimized DynamoDB and S3 storage.",
     projects: [
       {
         name: "Serverless APIs",
@@ -126,16 +133,23 @@ const jobs: Job[] = [
           subtitle={job.company}
           date={job.date}
           badge={job.type}
-          summary={job.summary}
         >
+          <div class="job-summary-row">
+            <p class="job-summary">{job.summary}</p>
+            {job.projects && <ChevronToggle ariaLabel="Show projects" />}
+          </div>
           {job.projects && (
-            <div class="job-projects-grid">
-              {job.projects.map((project) => (
-                <Card variant="minimal">
-                  <span class="project-name">{project.name}</span>
-                  <span class="project-desc">{project.description}</span>
-                </Card>
-              ))}
+            <div class="job-details">
+              <div class="job-details-inner">
+                <div class="job-projects-grid">
+                  {job.projects.map((project) => (
+                    <Card variant="minimal">
+                      <span class="project-name">{project.name}</span>
+                      <span class="project-desc">{project.description}</span>
+                    </Card>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
         </ListItem>
@@ -151,11 +165,46 @@ const jobs: Job[] = [
     gap: 2.5rem;
   }
 
+  .job-summary-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    cursor: pointer;
+  }
+
+  .job-summary {
+    flex: 1;
+    font-size: 0.95rem;
+    color: var(--secondary-text);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* Collapsible details */
+  .job-details {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition:
+      grid-template-rows 0.3s ease-out,
+      margin-top 0.3s ease-out;
+    margin-top: 0;
+  }
+
+  .job-details.expanded {
+    grid-template-rows: 1fr;
+    margin-top: 0.25rem;
+  }
+
+  .job-details-inner {
+    overflow: hidden;
+    min-height: 0;
+  }
+
   .job-projects-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 0.75rem;
-    margin-top: 0.25rem;
+    padding-top: 0.5rem;
   }
 
   .project-name {
@@ -183,4 +232,28 @@ const jobs: Job[] = [
   }
 
   @media (max-width: 900px) {
+    .job-projects-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
 
+<script>
+  document.querySelectorAll<HTMLElement>(".job-summary-row").forEach((row) => {
+    row.addEventListener("click", () => {
+      const listItem = row.closest(".list-item");
+      if (!listItem) return;
+
+      const details = listItem.querySelector<HTMLElement>(".job-details");
+      const btn = row.querySelector<HTMLButtonElement>(".chevron-toggle");
+      if (!details || !btn) return;
+
+      btn.classList.toggle("active");
+      details.classList.toggle("expanded");
+      btn.setAttribute(
+        "aria-expanded",
+        btn.classList.contains("active") ? "true" : "false",
+      );
+    });
+  });
+</script>

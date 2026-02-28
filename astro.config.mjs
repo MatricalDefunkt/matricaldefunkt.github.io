@@ -5,7 +5,7 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
   site: 'https://matricaldefunkt.github.io',
   build: {
-    // Inline all CSS into <style> tags — eliminates the render-blocking
+    // Inline all CSS into <style> tags - eliminates the render-blocking
     // external stylesheet request that Lighthouse flags.
     inlineStylesheets: 'always',
   },

@@ -88,12 +88,14 @@ const projects: Project[] = [
         <Card>
           <div class="card-header">
             <h3>
-              {project.title === "AUR Maintainer" ? (
-                <span>
-                  {/* prettier-ignore */}
-                  <span class="tooltip" data-tip="Arch, BTW">AUR</span>{" "}
-                  Maintainer
-                </span>
+              {project.title === "SELinux Maintainer (AUR)" ? (
+                <>
+                  {
+                    // why does prettier have to be so annoying at times :(
+                    // prettier-ignore
+                    <><span>SELinux Maintainer (</span><span class="tooltip" data-tip="Arch, BTW">AUR</span><span>)</span></>
+                  }
+                </>
               ) : (
                 project.title
               )}
@@ -500,7 +502,7 @@ const projects: Project[] = [
     const MIN_SCALE = 1;
     const MAX_SCALE = 8;
 
-    // Cached dimensions — updated once on resize/open to prevent DOM Reflow thrashing
+    // Cached dimensions - updated once on resize/open to prevent DOM Reflow thrashing
     let imgBaseWidth = 0;
     let imgBaseHeight = 0;
     let winWidth = 0;
@@ -544,7 +546,7 @@ const projects: Project[] = [
       modalImg.style.transform = `translate3d(${originX}px, ${originY}px, 0) scale(${scale})`;
     }
 
-    // Schedule a single rAF-batched paint — drops redundant mid-frame calls
+    // Schedule a single rAF-batched paint - drops redundant mid-frame calls
     function scheduleTransform() {
       if (rafPending) return;
       rafPending = true;
