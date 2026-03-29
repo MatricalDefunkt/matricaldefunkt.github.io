@@ -14,11 +14,11 @@ interface Job {
 
 const jobs: Job[] = [
   {
-    role: "Cloud Infrastructure Engineer (Trainee)",
+    role: "Cloud Infrastructure & Platform Engineer (Trainee)",
     company: "Mobigic Technologies",
     date: "Nov 2025 - Present",
     summary:
-      "Leading the enterprise-wide migration from Azure to Vultr, architecting cloud-native infrastructure and owning the CI/CD pipelines.",
+      "Leading enterprise migration from Azure to Vultr while architecting cloud-native platform infrastructure and production CI/CD workflows.",
     projects: [
       {
         name: "Hybrid Kubernetes",
@@ -28,17 +28,17 @@ const jobs: Job[] = [
       {
         name: "CI/CD Infrastructure",
         description:
-          "Built Gitea Actions & Jenkins pipelines for Android/Web/iOS builds, utilizing Cloudflare Tunnels to utilize on-prem Mac hardware.",
+          "Architected the organization's first CI/CD pipeline with automated testing, release workflows, and artifact lifecycle management across Android/Web/iOS delivery.",
       },
       {
-        name: "Security & Observability",
+        name: "Security & Resilience",
         description:
-          "Integrated Docker Scout and Trivy into the CI/CD pipeline for optimal security, alongside Prometheus and Grafana for monitoring.",
+          "Achieved 99.9% uptime by implementing disaster recovery strategy, hardened bastions/firewalls/NAT, and production-grade observability with Prometheus and Grafana.",
       },
       {
-        name: "Database Administration",
+        name: "Infrastructure as Code at Scale",
         description:
-          "Administered and optimized MSSQL and MySQL servers to ensure high availability and performance.",
+          "Automated Dev/Stage/Prod provisioning using Terraform with zero-drift controls across 80+ active infrastructure components.",
       },
     ],
   },
@@ -77,7 +77,7 @@ const jobs: Job[] = [
     date: "Aug 2024 - Jul 2025",
     type: "Part-time",
     summary:
-      "Led a 6-person team to architect a decentralized social platform, decomposing a monolith into 12 microservices and slashing deploy latency by 80%.",
+      "Led a 6-intern team to architect a decentralized social platform, decomposed a monolith into 12 microservices, cut deployment latency by 80%, reduced ops costs by 90%, and accelerated feature delivery by 33%.",
     projects: [
       {
         name: "Decentralized Social Media",
@@ -87,12 +87,12 @@ const jobs: Job[] = [
       {
         name: "Microservices Migration",
         description:
-          "Decomposed a legacy Express monolith into 12 scalable, event-driven microservices.",
+          "Decomposed a legacy monolith into 12 scalable, event-driven microservices, improving delivery velocity by 33%.",
       },
       {
         name: "AWS CI/CD Pipelines",
         description:
-          "Established automated deployment pipelines that reduced deployment latency by 80%.",
+          "Established automated build and deployment pipelines that reduced deployment latency by 80% and lowered operational costs by 90%.",
       },
     ],
   },
@@ -214,6 +214,7 @@ const jobs: Job[] = [
     display: flex;
     align-items: center;
     gap: 0.4rem;
+    text-transform: uppercase;
   }
 
   .project-name::before {
@@ -231,7 +232,7 @@ const jobs: Job[] = [
     line-height: 1.5;
   }
 
-  @media (max-width: 900px) {
+  @media (max-width: 1000px) {
     .job-projects-grid {
       grid-template-columns: 1fr;
     }

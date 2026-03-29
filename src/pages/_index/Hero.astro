@@ -11,6 +11,14 @@ import FloatingLinks from "../../components/ui/FloatingLinks.astro";
       >, based in Pune, India. I build robust cloud-native systems and scalable
       backend architectures.
     </p>
+    <button
+      type="button"
+      id="contact-scroll-btn"
+      class="contact-cta"
+      aria-label="Scroll to contact form"
+    >
+      Contact Me
+    </button>
     <div class="author-info">
       <img src="/profile.jpg" alt="Pramit Sharma" class="profile-photo" />
       <span class="author-name">Pramit Sharma</span>
@@ -47,6 +55,33 @@ import FloatingLinks from "../../components/ui/FloatingLinks.astro";
     color: var(--text-color);
   }
 
+  .contact-cta {
+    margin-top: 1.2rem;
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--text-color);
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    transition:
+      border-color 0.2s ease,
+      transform 0.2s ease,
+      color 0.2s ease;
+  }
+
+  .contact-cta:hover {
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+  }
+
+  .contact-cta:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+  }
+
   .author-info {
     display: flex;
     align-items: center;
@@ -71,7 +106,7 @@ import FloatingLinks from "../../components/ui/FloatingLinks.astro";
     letter-spacing: 0.02em;
   }
 
-  @media (max-width: 900px) {
+  @media (max-width: 1000px) {
     .intro {
       font-size: 1.35rem;
     }
@@ -81,3 +116,17 @@ import FloatingLinks from "../../components/ui/FloatingLinks.astro";
     }
   }
 </style>
+
+<script>
+  const contactScrollBtn = document.getElementById(
+    "contact-scroll-btn",
+  ) as HTMLButtonElement | null;
+  const footerContactForm = document.getElementById(
+    "footer-contact-form",
+  ) as HTMLFormElement | null;
+
+  contactScrollBtn?.addEventListener("click", () => {
+    if (!footerContactForm) return;
+    footerContactForm.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+</script>

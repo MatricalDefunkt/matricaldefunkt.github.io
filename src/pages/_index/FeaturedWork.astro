@@ -24,11 +24,12 @@ const projects: Project[] = [
     challenge:
       "Keep SELinux packages up-to-date and compatible with Arch Linux's rolling release model, ensuring security and stability for users.",
     solution:
-      "Maintain SELinux-related packages in the Arch User Repository (AUR), including regular updates, patching, and responding to user feedback to ensure smooth operation on Arch systems.",
+      "Maintain SELinux-related packages in the Arch User Repository (AUR), including regular updates, patching, testing, and responding to user feedback to ensure smooth operation on Arch systems.",
     tech: ["Linux", "Bash", "Package Management"],
     stats: [
       { value: "Active", label: "Maintainer" },
-      { value: "168", label: "Stars" },
+      { value: "39", label: "Packages" },
+      { value: "38", label: "SELinux Ports" },
     ],
     link: "https://github.com/archlinuxhardened/selinux",
     linkText: "View Repository",
@@ -36,7 +37,7 @@ const projects: Project[] = [
   {
     title: "Custom Gitea Runner",
     challenge:
-      "Default runners were costly and inefficient for our specific workload patterns.",
+      "Default runner pattern was costly and inefficient for our specific workload patterns.",
     solution:
       "Reverse-engineered the Gitea protocol to build a scale-to-zero runner in Go, orchestrating pods via KEDA.",
     tech: ["Go", "KEDA", "Kubernetes"],
@@ -57,7 +58,8 @@ const projects: Project[] = [
       "Implemented a high-performance scheduling Island Model Genetic Algorithm with TanStack DB for offline-capable, timetable viewing.",
     tech: ["TypeScript", "Node.js Workers", "TanStack DB"],
     stats: [
-      { value: "4000+", label: "Students" },
+      { value: "99%", label: "Availability" },
+      { value: "4000+", label: "Users" },
       { value: "500+", label: "Faculties" },
       { value: "800+", label: "Constraints" },
     ],
