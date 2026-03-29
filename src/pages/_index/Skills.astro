@@ -1,7 +1,18 @@
 ---
 const ICON_COLOR = "a8a49c";
 
-const groups = [
+interface SkillItem {
+  name: string;
+  icon: string | null;
+  local?: string;
+}
+
+interface SkillGroup {
+  label: string;
+  items: SkillItem[];
+}
+
+const groups: SkillGroup[] = [
   {
     label: "Languages",
     items: [
@@ -9,6 +20,8 @@ const groups = [
       { name: "TypeScript", icon: "typescript" },
       { name: "Python", icon: "python" },
       { name: "C++", icon: "cplusplus" },
+      { name: "Rust", icon: "rust" },
+      { name: "SQL", icon: null, local: "/database.svg" },
     ],
   },
   {
@@ -24,9 +37,19 @@ const groups = [
     label: "Cloud",
     items: [
       { name: "AWS", icon: null, local: "/aws.png" },
-      { name: "GCP", icon: "googlecloud" },
       { name: "Azure", icon: null, local: "/azure.svg" },
       { name: "Vultr", icon: "vultr" },
+      { name: "Google Cloud", icon: "googlecloud" },
+    ],
+  },
+  {
+    label: "Frontend & AI",
+    items: [
+      { name: "React", icon: "react" },
+      { name: "Astro", icon: "astro" },
+      { name: "Next.js", icon: "nextdotjs" },
+      { name: "Gemini API", icon: "googlegemini" },
+      { name: "LangChain", icon: "langchain" },
     ],
   },
   {
@@ -34,6 +57,7 @@ const groups = [
     items: [
       { name: "Prometheus", icon: "prometheus" },
       { name: "Grafana", icon: "grafana" },
+      { name: "Loki", icon: null, local: "/loki.svg" },
       { name: "GitHub", icon: "github" },
       { name: "Gitea", icon: "gitea" },
     ],
@@ -126,7 +150,7 @@ const softSkills = [
 
   .skill-row {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
     gap: 0.5rem;
   }
 
@@ -211,7 +235,7 @@ const softSkills = [
     background: var(--card-bg);
   }
 
-  @media (max-width: 900px) {
+  @media (max-width: 1000px) {
     .groups {
       grid-template-columns: 1fr;
     }
