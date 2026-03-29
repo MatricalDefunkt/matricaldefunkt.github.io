@@ -25,10 +25,9 @@ jobs:
       - uses: withastro/action@v5
         with:
           package-manager: bun@latest
-          
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: dist/
 
