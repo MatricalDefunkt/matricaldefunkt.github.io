@@ -1,0 +1,7 @@
+.text-secondary {
+  color: var(--secondary-text);
+}
+
+.text-accent {
+  color: var(--accent-color);
+}

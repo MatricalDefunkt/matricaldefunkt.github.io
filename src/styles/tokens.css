@@ -1,0 +1,23 @@
+:root {
+  color-scheme: dark;
+
+  /* --- Backgrounds --- */
+  --bg-color: oklch(17% 0 0);
+  --content-bg-color: oklch(20% 0 0);
+  --footer-bg: #111110;
+  --card-bg: #1b1a18;
+
+  /* --- Text --- */
+  --text-color: #e6e4e0;
+  --text-hover: #d0cdc6;
+  --secondary-text: oklch(70% 0.00777 67.486);
+  --tag-text: #b5b2ac;
+
+  /* --- Accents & Borders --- */
+  --accent-color: #a8a49c;
+  --card-border: #2c2b27;
+
+  /* --- Overlays --- */
+  --tooltip-bg: #3a3935;
+  --tooltip-border: #52504b;
+}
