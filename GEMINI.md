@@ -45,16 +45,16 @@ All content lives as typed TypeScript arrays near the top of each section file i
 
 Key content files:
 
-| Section | File |
-|---|---|
-| Hero bio | `src/pages/_index/Hero.astro` |
-| Work experience | `src/pages/_index/Experience.astro` |
-| Featured projects | `src/pages/_index/FeaturedWork.astro` |
-| Skills / tech stack | `src/pages/_index/Skills.astro` |
-| Leadership | `src/pages/_index/Leadership.astro` |
-| Awards | `src/pages/_index/Awards.astro` |
-| Education | `src/pages/_index/Education.astro` |
-| SEO / OG meta | `src/layouts/Layout.astro` (frontmatter props) |
+| Section             | File                                           |
+| ------------------- | ---------------------------------------------- |
+| Hero bio            | `src/pages/_index/Hero.astro`                  |
+| Work experience     | `src/pages/_index/Experience.astro`            |
+| Featured projects   | `src/pages/_index/FeaturedWork.astro`          |
+| Skills / tech stack | `src/pages/_index/Skills.astro`                |
+| Leadership          | `src/pages/_index/Leadership.astro`            |
+| Awards              | `src/pages/_index/Awards.astro`                |
+| Education           | `src/pages/_index/Education.astro`             |
+| SEO / OG meta       | `src/layouts/Layout.astro` (frontmatter props) |
 
 ## Styling Rules
 
@@ -75,3 +75,7 @@ Key content files:
 ## Deploy
 
 Push to `main`. The GitHub Actions workflow builds with Astro and publishes to GitHub Pages. Custom domain is set via the `CNAME` file (`matricaldefunkt.me`).
+
+## Antipatterms / What Not To Do
+
+ALWAYS REFER TO ANTIPATTERNS.md BEFORE WORKING ON USER-FACING TEXT CONTENT. This file contains a list of common mistakes to avoid when writing content for the site. It will teach you how to stealth your ai-ness.
