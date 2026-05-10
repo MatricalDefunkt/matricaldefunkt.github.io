@@ -1,9 +1,12 @@
 ---
 import FloatingLinks from "../../components/ui/FloatingLinks.astro";
+import BlogCTA from "../../components/ui/BlogCTA.astro";
+import Button from "../../components/ui/Button.astro";
 ---
 
 <header class="header-bio">
   <FloatingLinks />
+  <BlogCTA />
   <div class="hero-content">
     <p class="intro">
       I'm an Infrastructure & Backend Engineer, and a <strong
@@ -11,14 +14,14 @@ import FloatingLinks from "../../components/ui/FloatingLinks.astro";
       >, based in Pune, India. I build robust cloud-native systems and scalable
       backend architectures.
     </p>
-    <button
-      type="button"
+    <Button
       id="contact-scroll-btn"
       class="contact-cta"
-      aria-label="Scroll to contact form"
+      ariaLabel="Scroll to contact form"
     >
       Contact Me
-    </button>
+    </Button>
+    <BlogCTA mobile />
     <div class="author-info">
       <img src="/profile.jpg" alt="Pramit Sharma" class="profile-photo" />
       <span class="author-name">Pramit Sharma</span>
@@ -57,29 +60,6 @@ import FloatingLinks from "../../components/ui/FloatingLinks.astro";
 
   .contact-cta {
     margin-top: 1.2rem;
-    border: 1px solid var(--card-border);
-    border-radius: 8px;
-    background: var(--card-bg);
-    color: var(--text-color);
-    font: inherit;
-    font-size: 0.9rem;
-    font-weight: 600;
-    padding: 0.6rem 1rem;
-    cursor: pointer;
-    transition:
-      border-color 0.2s ease,
-      transform 0.2s ease,
-      color 0.2s ease;
-  }
-
-  .contact-cta:hover {
-    border-color: var(--accent-color);
-    transform: translateY(-2px);
-  }
-
-  .contact-cta:focus-visible {
-    outline: 2px solid var(--accent-color);
-    outline-offset: 2px;
   }
 
   .author-info {

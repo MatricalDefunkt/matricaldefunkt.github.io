@@ -5,6 +5,7 @@ import Badge from "../../components/ui/Badge.astro";
 import Link from "../../components/ui/Link.astro";
 import Stat from "../../components/ui/Stat.astro";
 import IconButton from "../../components/ui/IconButton.astro";
+import Chevron from "../../components/ui/Chevron.astro";
 
 interface Project {
   title: string;
@@ -104,7 +105,7 @@ const projects: Project[] = [
             </h3>
             {(project.link && project.link !== "#" && (
               <Link href={project.link} external showIcon>
-                {project.linkText || "View Code"}
+                {project.linkText || "View"}
               </Link>
             )) ||
               (project.link === "#" && (
@@ -140,19 +141,7 @@ const projects: Project[] = [
                   ariaLabel="Show Architecture"
                   title="Show Architecture"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <polyline points="6 9 12 15 18 9" />
-                  </svg>
+                  <Chevron size={20} />
                 </IconButton>
               </div>
             )}
