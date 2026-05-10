@@ -1,0 +1,122 @@
+---
+title: "Migrating from Azure to Vultr"
+description: "A walkthrough of the platform engineering required to migrate well-established cloud infrastructure to Vultr from Azure"
+date: 2026-05-08
+tags: [kubernetes, go, ci, gitea]
+draft: false
+series: "The Great Cloud Migration"
+seriesOrder: 1
+---
+
+## The Problem
+
+Azure is a beast in cloud infrastructure, but it can become a nuiscance when businesses wish to become lean. The cost of running infrastructure on Azure can be significant, especially for small to medium-sized businesses. Additionally, Azure's pricing model can be complex and difficult to understand, making it challenging for businesses to predict and manage their costs effectively.
+
+## The Solution
+
+The solution to this problem is to migrate to a more cost-effective cloud provider, such as Vultr. **Not an ad**, but Vultr offers competitive pricing and a straightforward pricing model, making it easier for businesses to manage their costs. This kind of a migration can be beneficial for business, but is a hound task for platform engineers, given the limited services available on Vultr. It requires careful planning, execution, and testing to ensure a smooth transition without disrupting business operations.
+
+This creates a need to build out more of the infrastructure ourselves, creating a double-edged sword which allows for more customization and control, but can also requires more effort and expertise to set up and maintain.
+
+## What We Did
+
+The goal was to migrate a highly available auto-scaling Windows/Linux Kubernetes cluster, with MySQL and MSSQL databases, file stores, a CI/CD pipeline, a Bastion server, and VPN access. This required building out infrastructure from scratch on Vultr since many of Azure's managed services have no direct equivalent. Here, I will be going over a little bit about the provisioning, configuration, and architecture of the new cluster, as well as some of the custom tooling we built to fill in the gaps left by Azure's managed services.
+
+### The Architecture We Built
+
+- Custom RKE2 (Rancher Kubernetes Engine) cluster with hybrid node types
+  - Control plane on Ubuntu 22.04 LTS
+  - Linux worker nodes on Ubuntu 22.04 LTS
+  - Windows nodes on Windows Server 2022 (for CI and SQL Server workloads)
+- Why RKE2? Vultr Kubernetes Engine (VKE) doesn't support Windows nodes natively
+- Traefik v3 as ingress controller with automatic TLS via Let's Encrypt
+- Flannel VXLAN as CNI (not Calico, which doesn't support Windows)
+- Infrastructure-as-code via Terraform with remote state in Terraform Cloud
+
+### The Infrastructure Layer
+
+- **Networking & Load Balancing**
+  - Hub-and-spoke VPC topology (10.0.0.0/20)
+  - Vultr Layer 4 Load Balancer forwarding traffic to Traefik NodePorts
+  - Bypassed Vultr Cloud Controller Manager due to RKE2 provider ID incompatibility
+  
+- **Compute Provisioning**
+  - Control plane + Linux workers bootstrapped via Terraform + cloud-init
+  - Windows nodes with special metadata API polling for VPC binding
+  - Database VM (Windows Server) with 1TB block storage for SQL Server 2022
+  
+- **Node Bootstrapping Complexity**
+  - Linux: DNS conflict resolution, firewall management, Flannel interface binding
+  - Windows: Metadata API integration, scheduled task orchestration for reboots, RKE2 agent resume logic
+  - SQL Server: Dynamic memory/CPU tuning, automated backups with retention cleanup
+
+### Custom Tooling & Scaling
+
+- **Go-based autoscaler sidecar**
+  - Implements Kubernetes `externalgrpc` cloud provider interface
+  - Reads node group configuration from ConfigMap
+  - Matches Kubernetes requests to Vultr instances via tag intersection
+  - Shells out to SDK for for instance creation
+  
+- **State Management**
+  - Terraform state for static infrastructure (remote in Terraform Cloud)
+  - etcd snapshots on control plane (cron: every 6 hours, retention: 10)
+  - ConfigMap-based node group configuration
+  - Traefik CRDs for routing and TLS
+
+### Key Technical Decisions
+
+- **Flannel over Calico:** Windows native plugin support; Calico Linux-only DaemonSet would break Windows node routing
+- **Bypassing the Cloud Controller Manager:** Workaround via Layer 4 LB + static NodePorts, preserving client IPs with `externalTrafficPolicy: Local`
+- **Windows Node Tolerations:** Strict taint (`os=windows:NoSchedule`) prevents Linux pod misscheduling
+- **Immutable Infrastructure:** No post-provisioning config management; all setup via cloud-init and user-data templates
+
+## Lessons Learned
+
+### Terraform only sees the edge of the machine
+
+Terraform is great at the provisioning layer, VPCs, nodes, load balancers, block storage, all version-controlled and reproducible. Its visibility stops at the API call. Once an instance boots, the `user_data` script runs once inside a black box, and Terraform marks the job done. If the script crashes on line 47, the node still appears healthy from Terraform's perspective while being completely unusable from Kubernetes'.
+
+We ended up treating the bootstrap scripts with the same rigour as application code: idempotent operations, explicit failure conditions, enough logging to reconstruct what happened hours after the fact. `templatefile()` let us parameterise them so we weren't maintaining separate static copies per node type.
+
+### Four nameservers, three slots
+
+Vultr's DHCP hands each instance four nameservers. The `resolv.conf` spec caps at three. The fourth gets dropped, no warning, no log entry.
+
+On its own, fine. Under load, with cluster-internal DNS handling service name resolution, kubelet logs start filling with spurious lookup failures. They look like networking problems. They're not. The resolver cycles onto a dropped server once every four queries and times out. We spent half a day on it. The fix was a two-line `systemd-resolved` drop-in applied before kubelet starts.
+
+### Tear out the OS firewall
+
+On Azure, NSGs and host firewalls coexist without drama. Not here. RKE2's CNI (Flannel VXLAN) owns `iptables` on each node. If `firewalld` or `ufw` is also running, you get a race on boot, both try to manage the `FORWARD` chain, neither wins cleanly, and pod-to-pod connectivity breaks intermittently in ways that don't reproduce and don't log anything useful.
+
+Bootstrap scripts now stop and mask both before the RKE2 agent starts. Perimeter rules are Vultr firewall groups in Terraform. The OS firewall has no job left to do.
+
+### Windows bootstrapping is a two-act play
+
+Linux: one shell script, a handful of edge cases. Windows: a state machine running across multiple reboots.
+
+`Install-WindowsFeature` (needed for Windows Containers) forces a reboot, and `user_data` doesn't resume after one. We split setup into two stages. The initial script installs the feature, registers a scheduled task to fire on the next logon, then reboots. The task handles everything else: hitting the Vultr metadata API at `169.254.169.254` to fetch the internal VPC IP, binding it to the second Ethernet adapter, installing the RKE2 agent, joining the cluster.
+
+The metadata step isn't optional. Windows nodes don't have a VPC IP bound at boot. Start RKE2 before binding the right interface and the agent registers on the public IP, VXLAN traffic just disappears.
+
+### The CCM workaround is better than the real thing
+
+Vultr's Cloud Controller Manager expects standard `providerID` values on node objects. RKE2 forces `rke2://<node-name>`. They're incompatible, full stop.
+
+We started treating this as a bug to work around. After a while we stopped caring. The actual solution, a Terraform-managed Layer 4 TCP load balancer forwarding to static Traefik NodePorts, is more transparent than anything the CCM would have managed automatically. The LB config is in version control. Health check behaviour is explicit. Nothing reconciles state in the background.
+
+One real consequence: `externalTrafficPolicy: Local` on Traefik's DaemonSet. Good for preserving client IPs, but LB health checks only pass on nodes running a Traefik pod. Know this before you do a rolling update.
+
+### The autoscaler shells out to the CLI
+
+The Go autoscaler implements the Kubernetes `externalgrpc` cloud provider interface, running as a sidecar next to `cluster-autoscaler`. When it needs to spin up a node, it calls `vultr-cli instance create` via `os/exec`, not the Vultr Go SDK. The CLI handles auth, retries, and output cleanly, which made it the easier path. The catch: `vultr-cli` has to be in the container image, and that dependency isn't visible in the Go source at all.
+
+## Metrics & Results
+
+The cost difference is significant. Azure's managed Kubernetes, managed databases, and bundled services carry a real baseline cost even at low utilisation. Vultr charges for compute, storage, and bandwidth. The operational overhead you absorb in return, SQL Server backups, TLS provisioning, autoscaling, ingress routing, is covered by the tooling above.
+
+`terraform apply` on a fresh environment takes under ten minutes: VPC, load balancer, control plane, two Linux workers, one Windows worker, database VM. The Windows node is the bottleneck. MSSQL's unattended installer plus the `Install-WindowsFeature` reboot cycle accounts for most of that time.
+
+The honest single-point-of-failure is the control plane, etcd on one node, snapshotted every six hours, ten retained. HA control plane would roughly triple that segment of the cost. At this scale, that's not worth it.
+
+What changed most for the team: everything is in source control now. VPC routing, TLS certificates, node group sizing, firewall rules, none of it lives in a portal or on a VM someone SSH'd into once. Tear the cluster down, run `terraform apply`, and you're back in ten minutes.
