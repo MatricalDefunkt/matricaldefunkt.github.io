@@ -17,6 +17,9 @@
   --accent-color: #a8a49c;
   --card-border: #2c2b27;
 
+  /* --- Layout --- */
+  --container-max-width: clamp(900px, 46vw, 1800px);
+
   /* --- Overlays --- */
   --tooltip-bg: #3a3935;
   --tooltip-border: #52504b;
