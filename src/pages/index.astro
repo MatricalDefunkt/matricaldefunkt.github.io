@@ -52,6 +52,7 @@ import TechnicalWriting from "./_index/TechnicalWriting.astro";
     position: sticky;
     top: 0;
     height: 100vh;
+    height: 100dvh;
     display: flex;
     align-items: center;
     z-index: 0;
@@ -68,7 +69,7 @@ import TechnicalWriting from "./_index/TechnicalWriting.astro";
 
   .scroll-down-btn {
     position: absolute;
-    bottom: 2rem;
+    bottom: max(2rem, calc(1rem + env(safe-area-inset-bottom, 0px)));
     left: 50%;
     transform: translateX(-50%);
     background: transparent;
@@ -129,11 +130,13 @@ import TechnicalWriting from "./_index/TechnicalWriting.astro";
     () => {
       const links = document.getElementById("hero-social-links");
       const linksMobile = document.getElementById("hero-social-links-mobile");
+      const blogCta = document.getElementById("blog-cta");
       const shouldHide =
         window.scrollY >
         window.innerHeight * (window.outerWidth > 900 ? 0.25 : 0.1);
       links?.classList.toggle("hidden", shouldHide);
       linksMobile?.classList.toggle("hidden", shouldHide);
+      blogCta?.classList.toggle("hidden", shouldHide);
     },
     { passive: true },
   );
