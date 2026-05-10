@@ -1,4 +1,6 @@
 ---
+import Chevron from "./Chevron.astro";
+
 interface Props {
   ariaLabel?: string;
   class?: string;
@@ -13,19 +15,7 @@ const { ariaLabel = "Toggle details", class: className = "" } = Astro.props;
   aria-label={ariaLabel}
   aria-expanded="false"
 >
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  >
-    <polyline points="6 9 12 15 18 9"></polyline>
-  </svg>
+  <Chevron size={20} />
 </button>
 
 <style>
@@ -43,7 +33,7 @@ const { ariaLabel = "Toggle details", class: className = "" } = Astro.props;
     flex-shrink: 0;
   }
 
-  .chevron-toggle > svg {
+  .chevron-toggle > :global(.chevron) {
     translate: 0 0;
     transition:
       translate 0.2s ease,
@@ -55,15 +45,15 @@ const { ariaLabel = "Toggle details", class: className = "" } = Astro.props;
     background: var(--bg);
   }
 
-  .chevron-toggle:hover > svg {
+  .chevron-toggle:hover > :global(.chevron) {
     translate: 0 4px;
   }
 
-  .chevron-toggle.active > svg {
+  .chevron-toggle.active > :global(.chevron) {
     transform: rotate(180deg);
   }
 
-  .chevron-toggle.active:hover > svg {
+  .chevron-toggle.active:hover > :global(.chevron) {
     translate: 0 -4px;
   }
 </style>
