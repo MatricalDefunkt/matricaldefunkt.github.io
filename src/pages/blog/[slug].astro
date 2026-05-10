@@ -1,0 +1,365 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import PostHeader from "../../components/blog/PostHeader.astro";
+import TableOfContents from "../../components/blog/TableOfContents.astro";
+import SeriesNav from "../../components/blog/SeriesNav.astro";
+import Comments from "../../components/blog/Comments.astro";
+import Arrow from "../../components/ui/Arrow.astro";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog", ({ data }) => {
+    return import.meta.env.DEV || !data.draft;
+  });
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+interface Props {
+  post: CollectionEntry<"blog">;
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+const { title, description, date, tags, ogImage, series, seriesOrder, draft } =
+  post.data;
+const readingTime = Math.ceil((post.body ?? "").split(/\s+/).length / 150);
+const canonicalUrl = `https://matricaldefunkt.me/blog/${post.id}/`;
+
+// Gather series posts for SeriesNav
+let seriesPosts: { slug: string; title: string; order: number }[] = [];
+if (series && seriesOrder !== undefined) {
+  const all = await getCollection("blog", ({ data }) => {
+    return (import.meta.env.DEV || !data.draft) && data.series === series;
+  });
+  seriesPosts = all.map((p) => ({
+    slug: p.id,
+    title: p.data.title,
+    order: p.data.seriesOrder ?? 0,
+  }));
+}
+---
+
+<Layout
+  title={`${title} | Pramit Sharma`}
+  description={description}
+  ogImage={ogImage ?? "/profile.jpg"}
+  canonicalUrl={canonicalUrl}
+>
+  <script
+    is:inline
+    type="application/ld+json"
+    set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: title,
+      description: description,
+      datePublished: date.toISOString(),
+      author: { "@type": "Person", name: "Pramit Sharma" },
+      url: canonicalUrl,
+    })}
+  />
+
+  <div class="post-wrapper">
+    <div class="container">
+      <a href="/blog" class="back-link"><Arrow direction="left" /> Writing</a>
+
+      {
+        draft && (
+          <div class="draft-banner" role="alert">
+            Draft — not published
+          </div>
+        )
+      }
+
+      <article class="post-content">
+        <PostHeader
+          title={title}
+          description={description}
+          date={date}
+          tags={tags}
+          readingTime={readingTime}
+          series={series}
+          seriesOrder={seriesOrder}
+        />
+        {headings.length > 1 && <TableOfContents headings={headings} />}
+        <div class="prose">
+          <Content />
+        </div>
+        {
+          series && seriesOrder !== undefined && seriesPosts.length > 1 && (
+            <SeriesNav
+              series={series}
+              currentOrder={seriesOrder}
+              posts={seriesPosts}
+            />
+          )
+        }
+        <!-- <Comments /> -->
+      </article>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .post-wrapper {
+    min-height: 100vh;
+    background-color: var(--content-bg-color);
+    padding: 4rem 0;
+  }
+
+  .back-link {
+    display: inline-block;
+    font-size: 0.88rem;
+    color: var(--secondary-text);
+    text-decoration: none;
+    margin-bottom: 2rem;
+    transition: color 0.15s ease;
+  }
+
+  .back-link:hover {
+    color: var(--text-color);
+  }
+
+  .back-link:hover :global(.arrow) {
+    translate: -4px 0;
+  }
+
+  .draft-banner {
+    background: rgba(255, 180, 0, 0.1);
+    border: 1px solid rgba(255, 180, 0, 0.35);
+    border-radius: 6px;
+    color: #e0b545;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.55rem 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Prose styles */
+  .prose {
+    color: var(--secondary-text);
+    line-height: 1.8;
+    font-size: 1rem;
+  }
+
+  .prose :global(h2),
+  .prose :global(h3),
+  .prose :global(h4) {
+    color: var(--text-color);
+    font-weight: 600;
+    margin: 2rem 0 0.75rem;
+    line-height: 1.3;
+  }
+
+  .prose :global(h2) {
+    font-size: 1.35rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--card-border);
+  }
+
+  .prose :global(h3) {
+    font-size: 1.1rem;
+  }
+
+  .prose :global(p) {
+    margin: 0 0 1.2rem;
+  }
+
+  .prose :global(a) {
+    color: var(--accent-color);
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    transition: text-decoration-color 0.15s ease;
+  }
+
+  .prose :global(a:hover) {
+    text-decoration-color: var(--accent-color);
+  }
+
+  .prose :global(strong) {
+    color: var(--text-color);
+    font-weight: 600;
+  }
+
+  .prose :global(code:not(pre code)) {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 4px;
+    padding: 0.15em 0.4em;
+    font-size: 0.88em;
+    color: var(--text-color);
+  }
+
+  /* Wrapper holds position:relative so the button doesn't scroll with pre's overflow */
+  .prose :global(.code-block) {
+    position: relative;
+    margin: 1.5rem 0;
+  }
+
+  .prose :global(pre) {
+    background: #0d0d0c !important;
+    border: 1px solid var(--card-border);
+    border-radius: 0.65rem;
+    padding: 1.25rem 1.5rem;
+    overflow-x: auto;
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.65;
+  }
+
+  .prose :global(.copy-btn) {
+    position: absolute;
+    top: 0.65rem;
+    right: 0.65rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    background: rgba(27, 26, 24, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(44, 43, 39, 0.8);
+    border-radius: 6px;
+    color: var(--secondary-text);
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      border-color 0.15s ease,
+      opacity 0.2s ease;
+    z-index: 2;
+  }
+
+  /* Desktop: fade in on code block hover */
+  @media (min-width: 1001px) {
+    .prose :global(.copy-btn) {
+      opacity: 0;
+    }
+    .prose :global(.code-block:hover .copy-btn) {
+      opacity: 1;
+    }
+  }
+
+  /* Mobile: always visible, dimmed */
+  @media (max-width: 1000px) {
+    .prose :global(.copy-btn) {
+      opacity: 0.45;
+    }
+  }
+
+  .prose :global(.copy-btn:hover) {
+    color: var(--text-color);
+    border-color: var(--accent-color);
+    opacity: 1;
+  }
+
+  .prose :global(.copy-btn.copied) {
+    color: #86efac;
+    border-color: rgba(134, 239, 172, 0.45);
+    opacity: 1;
+  }
+
+  /* Icon visibility */
+  .prose :global(.copy-btn .icon-check) {
+    display: none;
+  }
+  .prose :global(.copy-btn.copied .icon-copy) {
+    display: none;
+  }
+  .prose :global(.copy-btn.copied .icon-check) {
+    display: block;
+    animation: check-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  @keyframes check-pop {
+    from {
+      transform: scale(0.3);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .prose :global(blockquote) {
+    border-left: 3px solid var(--accent-color);
+    margin: 1.5rem 0;
+    padding: 0.25rem 0 0.25rem 1.25rem;
+    color: var(--secondary-text);
+    font-style: italic;
+  }
+
+  .prose :global(ul),
+  .prose :global(ol) {
+    padding-left: 1.5rem;
+    margin: 0 0 1.2rem;
+  }
+
+  .prose :global(li) {
+    margin-bottom: 0.35rem;
+  }
+
+  .prose :global(hr) {
+    border: none;
+    border-top: 1px solid var(--card-border);
+    margin: 2.5rem 0;
+  }
+
+  .prose :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin: 1.5rem 0;
+  }
+
+  .prose :global(th),
+  .prose :global(td) {
+    padding: 0.6rem 0.85rem;
+    border: 1px solid var(--card-border);
+    text-align: left;
+  }
+
+  .prose :global(th) {
+    background: var(--card-bg);
+    color: var(--text-color);
+    font-weight: 600;
+  }
+
+  .prose :global(img) {
+    max-width: 100%;
+    border-radius: 0.5rem;
+    border: 1px solid var(--card-border);
+  }
+</style>
+
+<script>
+  const COPY_SVG = `<svg class="icon-copy" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+  const CHECK_SVG = `<svg class="icon-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>`;
+
+  document.querySelectorAll<HTMLPreElement>(".prose pre").forEach((pre) => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "code-block";
+    pre.parentNode!.insertBefore(wrapper, pre);
+    wrapper.appendChild(pre);
+
+    const btn = document.createElement("button");
+    btn.className = "copy-btn";
+    btn.type = "button";
+    btn.setAttribute("aria-label", "Copy code");
+    btn.innerHTML = COPY_SVG + CHECK_SVG;
+    wrapper.appendChild(btn);
+
+    btn.addEventListener("click", async () => {
+      const text = pre.querySelector("code")?.innerText ?? pre.innerText;
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        return;
+      }
+      btn.classList.add("copied");
+      setTimeout(() => btn.classList.remove("copied"), 2000);
+    });
+  });
+</script>

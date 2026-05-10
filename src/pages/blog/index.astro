@@ -1,0 +1,171 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import PostCard from "../../components/blog/PostCard.astro";
+import Arrow from "../../components/ui/Arrow.astro";
+
+const allPosts = await getCollection("blog", ({ data }) => {
+  return import.meta.env.DEV || !data.draft;
+});
+
+const posts = allPosts.sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+
+const allTags = [...new Set(posts.flatMap((p) => p.data.tags))].sort();
+---
+
+<Layout
+  title="Writing | Pramit Sharma"
+  description="Infrastructure, backend engineering, Kubernetes, Go, and open source."
+  canonicalUrl="https://matricaldefunkt.me/blog/"
+>
+  <div class="blog-wrapper">
+    <div class="container">
+      <header class="blog-header">
+        <a href="/" class="back-link">
+          <Arrow direction="left" />
+          Back
+        </a>
+        <h1 class="blog-heading">Writing</h1>
+        <p class="blog-subheading">
+          Infrastructure, backend engineering, and open source.
+        </p>
+      </header>
+
+      {
+        allTags.length > 0 && (
+          <div class="tag-filter" role="group" aria-label="Filter by tag">
+            <button class="filter-tag filter-tag--active" data-tag="">
+              All
+            </button>
+            {allTags.map((tag) => (
+              <button class="filter-tag" data-tag={tag}>
+                {tag}
+              </button>
+            ))}
+          </div>
+        )
+      }
+
+      {
+        posts.length === 0 ? (
+          <p class="empty-state">No posts yet — check back soon.</p>
+        ) : (
+          <div class="post-list" id="post-list">
+            {posts.map((post) => (
+              <div class="post-list-item" data-tags={post.data.tags.join(",")}>
+                <PostCard post={post} />
+              </div>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .blog-wrapper {
+    min-height: 100vh;
+    background-color: var(--content-bg-color);
+    padding: 4rem 0;
+  }
+
+  .blog-header {
+    margin-bottom: 2.5rem;
+  }
+
+  .back-link {
+    display: inline-block;
+    font-size: 0.88rem;
+    color: var(--secondary-text);
+    text-decoration: none;
+    margin-bottom: 1.5rem;
+    transition: color 0.15s ease;
+  }
+
+  .back-link:hover {
+    color: var(--text-color);
+  }
+
+  .back-link:hover :global(.arrow) {
+    translate: -4px 0;
+  }
+
+  .blog-heading {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0 0 0.5rem;
+  }
+
+  .blog-subheading {
+    font-size: 1rem;
+    color: var(--secondary-text);
+    margin: 0;
+  }
+
+  .tag-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .filter-tag {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 4px;
+    padding: 0.3rem 0.7rem;
+    font: inherit;
+    font-size: 0.82rem;
+    color: var(--secondary-text);
+    cursor: pointer;
+    transition:
+      border-color 0.15s ease,
+      color 0.15s ease;
+  }
+
+  .filter-tag:hover,
+  .filter-tag--active {
+    border-color: var(--accent-color);
+    color: var(--text-color);
+  }
+
+  .post-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .post-list-item[hidden] {
+    display: none;
+  }
+
+  .empty-state {
+    color: var(--secondary-text);
+    font-size: 0.95rem;
+    margin-top: 2rem;
+  }
+</style>
+
+<script>
+  const filterBtns =
+    document.querySelectorAll<HTMLButtonElement>(".filter-tag");
+  const items = document.querySelectorAll<HTMLElement>(".post-list-item");
+
+  filterBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const tag = btn.dataset.tag ?? "";
+
+      filterBtns.forEach((b) => b.classList.remove("filter-tag--active"));
+      btn.classList.add("filter-tag--active");
+
+      items.forEach((item) => {
+        const tags = item.dataset.tags?.split(",") ?? [];
+        item.hidden = tag !== "" && !tags.includes(tag);
+      });
+    });
+  });
+</script>
