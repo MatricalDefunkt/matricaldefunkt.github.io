@@ -1,0 +1,231 @@
+---
+import Chevron from '../ui/Chevron.astro';
+
+export interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  headings: Heading[];
+}
+
+const { headings } = Astro.props;
+const h2s = headings.filter(h => h.depth === 2 || h.depth === 3);
+---
+
+{h2s.length > 1 && (
+  <nav class="toc" aria-label="Table of contents">
+    <button class="toc-toggle" aria-expanded="false" aria-controls="toc-body" id="toc-toggle">
+      <span class="toc-label">Contents</span>
+      <Chevron class="toc-chevron" size={14} />
+    </button>
+    <!-- Grid collapse wrapper: single child with overflow:hidden is required -->
+    <div class="toc-body" id="toc-body">
+      <ol class="toc-list" role="list">
+        {h2s.map(h => (
+          <li class:list={['toc-item', { 'toc-item--h3': h.depth === 3 }]}>
+            <a href={`#${h.slug}`} class="toc-link">{h.text}</a>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </nav>
+)}
+
+<style>
+  /* --- Shared --- */
+  .toc {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 0.75rem;
+  }
+
+  .toc-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1rem;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .toc-toggle:hover {
+    color: var(--accent-color);
+  }
+
+  :global(.toc-chevron) {
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+    color: var(--secondary-text);
+  }
+
+  .toc-toggle[aria-expanded="true"] :global(.toc-chevron) {
+    transform: rotate(180deg);
+  }
+
+  /* CSS grid collapse trick: .toc-body is the grid, .toc-list is the single overflowing child */
+  .toc-body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.25s ease;
+  }
+
+  .toc-body.open {
+    grid-template-rows: 1fr;
+  }
+
+  .toc-list {
+    overflow: hidden;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .toc-item {
+    border-top: 1px solid var(--card-border);
+  }
+
+  .toc-item--h3 {
+    padding-left: 1rem;
+  }
+
+  .toc-link {
+    display: block;
+    padding: 0.55rem 1rem;
+    font-size: 0.84rem;
+    color: var(--secondary-text);
+    text-decoration: none;
+    transition: color 0.15s ease;
+    line-height: 1.4;
+  }
+
+  .toc-link:hover,
+  .toc-link.active {
+    color: var(--text-color);
+  }
+
+  /* --- Mobile: inline collapsible, shown in article flow --- */
+  @media (max-width: 1000px) {
+    .toc {
+      margin-bottom: 2rem;
+    }
+  }
+
+  /* --- Desktop: fixed to the right of the viewport, vertically centred --- */
+  @media (min-width: 1300px) {
+    .toc {
+      position: fixed;
+      right: 2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 170px;
+      max-height: 70vh;
+      overflow-y: auto;
+      z-index: 50;
+      /* Scrollbar stays subtle */
+      scrollbar-width: thin;
+      scrollbar-color: var(--card-border) transparent;
+    }
+
+    /* Always expanded on desktop — no toggle needed */
+    .toc-toggle {
+      pointer-events: none;
+      cursor: default;
+    }
+
+    .toc-chevron {
+      display: none;
+    }
+
+    .toc-body {
+      grid-template-rows: 1fr !important;
+    }
+  }
+
+  /* Hide the fixed sidebar between 1001–1299px where there isn't room */
+  @media (min-width: 1001px) and (max-width: 1299px) {
+    .toc {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  const toggle = document.getElementById('toc-toggle');
+  const body = document.getElementById('toc-body');
+
+  toggle?.addEventListener('click', () => {
+    const expanded = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!expanded));
+    body?.classList.toggle('open', !expanded);
+  });
+
+  // Active heading highlight
+  const links = document.querySelectorAll<HTMLAnchorElement>('.toc-link');
+  const headingEls = Array.from(links)
+    .map(link => document.querySelector<HTMLElement>(link.getAttribute('href')!))
+    .filter(Boolean) as HTMLElement[];
+
+  function updateActive() {
+    if (!headingEls.length) return;
+    const mid = window.innerHeight / 5;
+    let current = headingEls[0];
+    let minDist = Infinity;
+    for (const h of headingEls) {
+      const dist = Math.abs(h.getBoundingClientRect().top - mid);
+      if (dist < minDist) { minDist = dist; current = h; }
+    }
+    links.forEach(link => {
+      link.classList.toggle('active', link.getAttribute('href') === `#${current?.id}`);
+    });
+  }
+
+  // Footer avoidance: when footer + 10rem buffer approaches the ToC bottom,
+  // transition from fixed-centred to a computed top that scrolls it away.
+  const toc = document.querySelector<HTMLElement>('.toc');
+  const footer = document.querySelector<HTMLElement>('footer');
+
+  function updateTocDocking() {
+    if (!toc || !footer || window.innerWidth < 1300) {
+      if (toc) { toc.style.top = ''; toc.style.transform = ''; }
+      return;
+    }
+
+    const footerTop = footer.getBoundingClientRect().top;
+    const tocHeight = toc.offsetHeight;
+    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    const buffer = 10 * rem;
+
+    // In the normal fixed state, the ToC bottom sits at vh/2 + tocHeight/2
+    const naturalBottom = window.innerHeight / 2 + tocHeight / 2;
+
+    if (footerTop - buffer < naturalBottom) {
+      // Dock: keep the ToC bottom pinned to (footerTop - buffer)
+      toc.style.top = `${footerTop - buffer - tocHeight}px`;
+      toc.style.transform = 'none';
+    } else {
+      // Normal centred state — let CSS take over
+      toc.style.top = '';
+      toc.style.transform = '';
+    }
+  }
+
+  function onFrame() {
+    updateActive();
+    updateTocDocking();
+  }
+
+  window.addEventListener('scroll', onFrame, { passive: true });
+  window.addEventListener('resize', updateTocDocking, { passive: true });
+  updateTocDocking();
+  updateActive();
+</script>

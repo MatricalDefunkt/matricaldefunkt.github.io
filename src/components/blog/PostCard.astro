@@ -1,0 +1,85 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Badge from "../ui/Badge.astro";
+
+interface Props {
+  post: CollectionEntry<"blog">;
+}
+
+const { post } = Astro.props;
+const { title, description, date, tags } = post.data;
+const wordCount = (post.body ?? "").split(/\s+/).length;
+const wordsPerMinute = 150;
+const readingTime = Math.ceil(wordCount / wordsPerMinute);
+const formattedDate = date.toLocaleDateString("en-GB", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+});
+---
+
+<a href={`/blog/${post.id}/`} class="post-card card">
+  <div class="card-body">
+    <div class="post-meta">
+      <time datetime={date.toISOString()} class="post-date"
+        >{formattedDate}</time
+      >
+      <span class="post-reading-time">{readingTime} min read</span>
+    </div>
+    <h2 class="post-title">{title}</h2>
+    <p class="post-description">{description}</p>
+  </div>
+  {
+    tags.length > 0 && (
+      <div class="card-footer">
+        {tags.map((tag) => (
+          <Badge text={tag} />
+        ))}
+      </div>
+    )
+  }
+</a>
+
+<style>
+  .post-card {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .post-date {
+    font-size: 0.85rem;
+    color: var(--secondary-text);
+  }
+
+  .post-reading-time {
+    font-size: 0.8rem;
+    color: var(--secondary-text);
+  }
+
+  .post-reading-time::before {
+    content: "·";
+    margin-right: 1rem;
+  }
+
+  .post-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0 0 0.5rem;
+    line-height: 1.35;
+  }
+
+  .post-description {
+    font-size: 0.92rem;
+    color: var(--secondary-text);
+    margin: 0;
+    line-height: 1.6;
+  }
+</style>

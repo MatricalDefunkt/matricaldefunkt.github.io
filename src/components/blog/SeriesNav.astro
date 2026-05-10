@@ -1,0 +1,125 @@
+---
+import Arrow from '../ui/Arrow.astro';
+
+interface Post {
+  slug: string;
+  title: string;
+  order: number;
+}
+
+interface Props {
+  series: string;
+  currentOrder: number;
+  posts: Post[];
+}
+
+const { series, currentOrder, posts } = Astro.props;
+const sorted = [...posts].sort((a, b) => a.order - b.order);
+const prev = sorted.find(p => p.order === currentOrder - 1);
+const next = sorted.find(p => p.order === currentOrder + 1);
+---
+
+{(prev || next) && (
+  <nav class="series-nav" aria-label={`More in ${series}`}>
+    <div class="series-label">More in <strong>{series}</strong></div>
+    <div class="series-links">
+      {prev && (
+        <a href={`/blog/${prev.slug}/`} class="series-link series-link--prev">
+          <span class="series-direction"><Arrow direction="left" size={11} /> Previous</span>
+          <span class="series-title">{prev.title}</span>
+        </a>
+      )}
+      {next && (
+        <a href={`/blog/${next.slug}/`} class="series-link series-link--next">
+          <span class="series-direction">Next <Arrow size={11} /></span>
+          <span class="series-title">{next.title}</span>
+        </a>
+      )}
+    </div>
+  </nav>
+)}
+
+<style>
+  .series-nav {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--card-border);
+  }
+
+  .series-label {
+    font-size: 0.82rem;
+    color: var(--secondary-text);
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .series-label strong {
+    color: var(--accent-color);
+    font-weight: 600;
+  }
+
+  .series-links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .series-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.9rem 1rem;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .series-link:hover {
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+  }
+
+  .series-link--next {
+    text-align: right;
+    grid-column: 2;
+  }
+
+  .series-link--prev:only-child,
+  .series-link--prev {
+    grid-column: 1;
+  }
+
+  .series-direction {
+    font-size: 0.78rem;
+    color: var(--secondary-text);
+    font-weight: 500;
+  }
+
+  .series-link--prev:hover :global(.arrow) {
+    translate: -4px 0;
+  }
+
+  .series-link--next:hover :global(.arrow) {
+    translate: 4px 0;
+  }
+
+  .series-title {
+    font-size: 0.92rem;
+    color: var(--text-color);
+    line-height: 1.35;
+  }
+
+  @media (max-width: 1000px) {
+    .series-links {
+      grid-template-columns: 1fr;
+    }
+
+    .series-link--next {
+      grid-column: 1;
+      text-align: left;
+    }
+  }
+</style>
