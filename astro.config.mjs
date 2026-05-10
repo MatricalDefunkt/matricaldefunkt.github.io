@@ -1,12 +1,15 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import sitemap from '@astrojs/sitemap';
+import mdx from '@astrojs/mdx';
 
-// https://astro.build/config
 export default defineConfig({
-  site: 'https://matricaldefunkt.github.io',
+  site: 'https://matricaldefunkt.me',
+  integrations: [mdx(), sitemap()],
   build: {
-    // Inline all CSS into <style> tags - eliminates the render-blocking
-    // external stylesheet request that Lighthouse flags.
     inlineStylesheets: 'always',
+  },
+  markdown: {
+    shikiConfig: { theme: 'one-dark-pro' },
   },
 });
