@@ -1,0 +1,38 @@
+---
+interface Props {
+  direction?: "down" | "up";
+  size?: number;
+  class?: string;
+}
+
+const { direction = "down", size = 24, class: className = "" } = Astro.props;
+---
+
+<svg
+  class:list={["chevron", direction === "up" && "chevron--up", className]}
+  xmlns="http://www.w3.org/2000/svg"
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+>
+  <polyline points="6 9 12 15 18 9"></polyline>
+</svg>
+
+<style>
+  .chevron {
+    display: inline-block;
+    transition:
+      translate 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .chevron--up {
+    transform: scaleY(-1);
+  }
+</style>

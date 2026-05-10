@@ -1,0 +1,76 @@
+---
+interface Props {
+  mobile?: boolean;
+}
+const { mobile = false } = Astro.props;
+---
+
+<a
+  href="/blog"
+  class:list={["btn", "blog-cta", { "blog-cta--mobile": mobile }]}
+  id={mobile ? undefined : "blog-cta"}
+  aria-label="Go to blog"
+>
+  <span class="prompt">cd ~/blog</span><span class="cursor">█</span>
+</a>
+
+<style>
+  .blog-cta {
+    font-family: ui-monospace, "Cascadia Code", "Fira Code", monospace;
+  }
+
+  /* Desktop: fixed to the right of the viewport */
+  .blog-cta:not(.blog-cta--mobile) {
+    position: fixed;
+    right: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 50;
+    transition:
+      transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 0.4s ease,
+      border-color 0.2s ease,
+      color 0.2s ease;
+  }
+
+  .blog-cta:not(.blog-cta--mobile).hidden {
+    transform: translateY(-50%) translateX(calc(100% + 3rem));
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .blog-cta:not(.blog-cta--mobile):not(.hidden):hover {
+    transform: translateY(calc(-50% - 2px));
+  }
+
+  /* Mobile: inline below the contact button — matches Button style */
+  .blog-cta--mobile {
+    display: none;
+    margin-top: 0.75rem;
+  }
+
+  .cursor {
+    color: var(--accent-color);
+    animation: cursor-blink 1.25s step-end infinite;
+  }
+
+  @keyframes cursor-blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+
+  @media (max-width: 1000px) {
+    .blog-cta:not(.blog-cta--mobile) {
+      display: none;
+    }
+
+    .blog-cta--mobile {
+      display: inline-flex;
+    }
+  }
+</style>
